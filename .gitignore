@@ -1,0 +1,10 @@
+out/
+out-test/
+*.class
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# local-only tests, not committed
+test/
