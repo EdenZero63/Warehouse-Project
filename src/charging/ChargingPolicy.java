@@ -1,6 +1,7 @@
 
 package charging;
 
+import exception.UnreachableDestinationException;
 import robot.Robot;
 import sim.Simulation;
 import task.Task;
@@ -28,7 +29,7 @@ public class ChargingPolicy {
 
         Position robotPosition = robot.getPosition();
         Position pickup = task.getPickup();
-        Position dropOff = task.getDropOff();
+        Position dropOff = task.getDropoff();
 
         if (robotPosition == null || pickup == null || dropOff == null) {
             return false;
@@ -41,9 +42,9 @@ public class ChargingPolicy {
 
         Position chargerPosition = charger.getPosition();
 
-        int toPickup = sim.getPathFinder().distance(robotPosition, pickup);
-        int toDropOff = sim.getPathFinder().distance(pickup, dropOff);
-        int toCharger = sim.getPathFinder().distance(dropOff, chargerPosition);
+        int toPickup = pathDistance(robotPosition, pickup, sim);
+        int toDropOff = pathDistance(pickup, dropOff, sim);
+        int toCharger = pathDistance(dropOff, chargerPosition, sim);
 
         if (toPickup < 0 || toDropOff < 0 || toCharger < 0) {
             return false;
@@ -62,7 +63,7 @@ public class ChargingPolicy {
         }
 
         Position pickup = task.getPickup();
-        Position dropOff = task.getDropOff();
+        Position dropOff = task.getDropoff();
 
         if (pickup == null || dropOff == null) {
             return false;
@@ -73,9 +74,9 @@ public class ChargingPolicy {
                 continue;
             }
 
-            int toPickup = sim.getPathFinder().distance(
-                    startCharger.getPosition(), pickup);
-            int toDropOff = sim.getPathFinder().distance(pickup, dropOff);
+            int toPickup = pathDistance(
+                    startCharger.getPosition(), pickup, sim);
+            int toDropOff = pathDistance(pickup, dropOff, sim);
 
             if (toPickup < 0 || toDropOff < 0) {
                 continue;
@@ -86,8 +87,8 @@ public class ChargingPolicy {
                     continue;
                 }
 
-                int toEndCharger = sim.getPathFinder().distance(
-                        dropOff, endCharger.getPosition());
+                int toEndCharger = pathDistance(
+                        dropOff, endCharger.getPosition(), sim);
 
                 if (toEndCharger < 0) {
                     continue;
@@ -124,8 +125,8 @@ public class ChargingPolicy {
             return true;
         }
 
-        int distance = sim.getPathFinder().distance(
-                next, charger.getPosition());
+        int distance = pathDistance(
+                next, charger.getPosition(), sim);
 
         if (distance < 0) {
             return true;
@@ -150,8 +151,8 @@ public class ChargingPolicy {
                 continue;
             }
 
-            int distance = sim.getPathFinder().distance(
-                    from, charger.getPosition());
+            int distance = pathDistance(
+                    from, charger.getPosition(), sim);
 
             if (distance >= 0 && distance < shortestDistance) {
                 shortestDistance = distance;
@@ -160,5 +161,15 @@ public class ChargingPolicy {
         }
 
         return nearest;
+    }
+
+    //path length from the PathFinder, or -1 if there is no path
+    //(the checks above treat anything below 0 as unreachable)
+    private int pathDistance(Position from, Position to, Simulation sim) {
+        try {
+            return sim.getPathFinder().distance(sim.getWarehouse(), from, to);
+        } catch (UnreachableDestinationException e) {
+            return -1;
+        }
     }
 }
