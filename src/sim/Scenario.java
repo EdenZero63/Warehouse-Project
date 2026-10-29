@@ -26,23 +26,27 @@ public class Scenario{
         this.robotBatteries = robotBatteries;
     }
 
-    //the map from the team prototype, plus a second charger (C2) as recommended in DESIGN.md Rule C
-    //P = pickup, D = drop-off, C = charger, # = obstacle, . = floor
-    //labels are numbered in reading order (left to right, top to bottom): P1, P2, D1, D2, C1, C2
+    //10x10 warehouse: 2x2 racks with aisles between them
+    //Z = zone (a task can pick up or drop off at any zone), C = charger, # = rack, . = floor
+    //labels are numbered in reading order (left to right, top to bottom): Z1..Z4, C1..C4
+    //each charger sits in a dead-end alcove 2 moves from its zone, so no route has to drive through one,
+    //and every zone-to-zone task fits in one battery at 5%/move (longest needs 76%)
     public static Scenario createDefault(){
         String[] layout = {
-            "P..#.....D",
-            "...#.##...",
-            ".....#....",
-            "##..C..#..",
-            "...##..#..",
-            "P........D",
-            ".##..#....",
-            "........C.",
+            "..........",
+            ".##.##.##.",
+            "C##.##.##C",
+            ".Z......Z.",
+            "....##....",
+            "....##....",
+            ".Z......Z.",
+            "C##.##.##C",
+            ".##.##.##.",
+            "..........",
         };
         String[] ids = {"R1", "R2", "R3"};
-        int[][] starts = {{1, 1}, {2, 7}, {5, 6}};
-        int[] batteries = {100, 60, 25}; //R3 starts low so charging shows up early in the demo
+        int[][] starts = {{3, 2}, {6, 7}, {9, 4}};
+        int[] batteries = {100, 90, 45}; //R3 starts low so charging shows up early in the demo
         return new Scenario("Default", layout, ids, starts, batteries);
     }
 
@@ -54,7 +58,7 @@ public class Scenario{
     //fresh Warehouse built from the layout strings
     public Warehouse buildWarehouse(){
         //TODO (Role 2): new Warehouse(layout.length, layout[0].length()), then one Cell per character,
-        //numbering P/D/C labels in reading order
+        //numbering Z and C labels in reading order (Z1, Z2, ... and C1, C2, ...)
         throw new UnsupportedOperationException("TODO (Role 2): buildWarehouse");
     }
 
