@@ -66,6 +66,14 @@ public class Simulation{
         throw new UnsupportedOperationException("TODO (Role 1): getRobot");
     }
 
+    //menu "c" command (Rule D): recharge a STRANDED robot by hand so it can carry on
+    //throws if the ID is unknown or the robot isn't stranded
+    public void serviceRobot(String id) throws RobotUnavailableException{
+        //TODO (Role 4): getRobot(id); if it isn't STRANDED throw RobotUnavailableException;
+        //otherwise refill the battery and call resumeAfterCharging(this)
+        throw new UnsupportedOperationException("TODO (Role 4): serviceRobot");
+    }
+
     //true if any robot other than `ignore` is standing on `p`
     public boolean isOccupied(Position p, Robot ignore){
         //TODO (Role 1)
