@@ -44,9 +44,13 @@ public class Simulation{
 
     //rebuilds everything from the scenario and goes back to tick 0
     public void reset(){
-        //TODO (Role 1): warehouse = scenario.buildWarehouse(); robots = scenario.buildRobots();
-        //chargers = scenario.buildChargers(); taskManager.clear(); log.clear(); tick = 0;
-        throw new UnsupportedOperationException("TODO (Role 1): reset");
+        warehouse = scenario.buildWarehouse();
+        robots = scenario.buildRobots();
+        chargers = scenario.buildChargers();
+        taskManager.clear();
+        log.clear();
+        tick = 0;
+        log.add(tick, scenario.getName() + " warehouse loaded: " + robots.size() + " robots, " + chargers.size() + " chargers");
     }
 
     //advances one tick, always in this order so runs are reproducible:
