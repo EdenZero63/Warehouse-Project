@@ -5,7 +5,6 @@ import sim.Scenario;
 import sim.Simulation;
 import ui.Menu;
 
-// owner: Role 1 (integration lead)
 // Entry point for the Warehouse Robot Fleet Simulation.
 // Initializes the scenario, starts the simulation, and launches the menu.
 public class Main {

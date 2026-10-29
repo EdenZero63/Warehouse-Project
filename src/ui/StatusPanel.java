@@ -44,9 +44,9 @@ public class StatusPanel{
         for(int i = 0; i < robots.size(); i++){
             Robot r = robots.get(i);
             int level = r.getBattery().getLevel();
-            String top = TextUtil.pad(GridRenderer.robotSymbol(r), 5)
+            String top = TextUtil.pad(Colors.paint(GridRenderer.robotSymbol(r), Colors.robotColor(r)), 5)
                 + TextUtil.pad(r.getPosition().toString(), 8)
-                + batteryBar(level) + " " + level + "%";
+                + Colors.paint(batteryBar(level) + " " + level + "%", Colors.batteryColor(level));
             String bottom = "     " + TextUtil.pad(r.getState().getLabel(), 16) + destination(sim, r);
             sb.append(TextUtil.boxed(top, PANEL_WIDTH)).append("\n");
             sb.append(TextUtil.boxed(bottom, PANEL_WIDTH)).append("\n");
@@ -83,11 +83,15 @@ public class StatusPanel{
         ArrayList<ChargingStation> chargers = sim.getChargers();
         for(int i = 0; i < chargers.size(); i++){
             ChargingStation cs = chargers.get(i);
-            String status = cs.getOccupant() == null ? "free" : cs.getOccupant().getId() + " charging";
+            String status = "free";
+            if(cs.getOccupant() != null){
+                Robot on = cs.getOccupant();
+                status = Colors.paint(on.getId(), Colors.robotColor(on)) + " charging";
+            }
             if(cs.getQueueSize() > 0){
                 status = status + ", " + cs.getQueueSize() + " waiting";
             }
-            sb.append(TextUtil.boxed(TextUtil.pad(cs.getId(), 6) + status, PANEL_WIDTH)).append("\n");
+            sb.append(TextUtil.boxed(TextUtil.pad(Colors.paint(cs.getId(), Colors.GREEN), 6) + status, PANEL_WIDTH)).append("\n");
         }
         String rates = "-" + ChargingPolicy.MOVE_COST + "%/move   +" + ChargingPolicy.CHARGE_RATE + "%/tick charging";
         sb.append(TextUtil.boxed(rates, PANEL_WIDTH)).append("\n");
