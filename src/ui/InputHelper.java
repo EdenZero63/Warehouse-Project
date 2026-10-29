@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 import exception.InvalidCommandException;
 
-//all keyboard reading goes through here so bad input is handled in one place
+//all the keyboard input goes through here so bad input only gets handled in one spot
 public class InputHelper{
     //fields
     private final Scanner scanner;
@@ -14,8 +14,8 @@ public class InputHelper{
         this.scanner = scanner;
     }
 
-    //prints the prompt and returns the trimmed line ("" if the user just pressed Enter)
-    //returns "q" if input has ended (e.g. Ctrl+Z) so the menu quits instead of crashing
+    //prints the prompt and gives back the line without extra spaces ("" if you just hit Enter)
+    //if the input ends (like Ctrl+Z) it returns "q" so the menu just quits instead of crashing
     public String readLine(String prompt){
         System.out.print(prompt);
         if(!scanner.hasNextLine()){
@@ -25,12 +25,12 @@ public class InputHelper{
         return scanner.nextLine().trim();
     }
 
-    //reads a whole number in min..max, throws if it isn't a number or is out of range
+    //reads a number between min and max, throws if you type something else or it's out of range
     public int readInt(String prompt, int min, int max) throws InvalidCommandException{
         return parseInt(readLine(prompt), min, max);
     }
 
-    //turns text into a whole number in min..max, for commands like "n 5"
+    //same idea but for text we already have, like the 5 in "n 5"
     public int parseInt(String text, int min, int max) throws InvalidCommandException{
         int value;
         try{

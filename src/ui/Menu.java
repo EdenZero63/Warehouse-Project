@@ -10,8 +10,8 @@ import robot.Robot;
 import sim.Simulation;
 import task.Task;
 
-//console menu: draw the screen, read one command, call Simulation, repeat
-//no game rules in here; catch the domain exceptions and print a friendly message
+//the menu: draw the screen, read a command, tell Simulation what to do, repeat
+//no game rules in here, if something throws we catch it and print a normal message
 //
 //commands:
 //  Enter   next tick           n <k>   run k ticks
@@ -19,9 +19,9 @@ import task.Task;
 //  c       service a stranded robot
 //  r       reset (asks to confirm)     q       quit
 public class Menu{
-    //how many event log lines are shown
+    //how many lines of the event log to show
     public static final int EVENT_ROWS = 6;
-    //most ticks one "n" command can run
+    //max ticks you can run with one "n" command
     public static final int MAX_TICKS_PER_COMMAND = 100;
 
     //fields
@@ -29,7 +29,7 @@ public class Menu{
     private final InputHelper input;
     private final GridRenderer gridRenderer;
     private final StatusPanel statusPanel;
-    private String message; //shown under the screen once, then cleared
+    private String message; //message under the screen, only shows once
 
     //constructor
     public Menu(Simulation sim){
@@ -40,7 +40,7 @@ public class Menu{
         this.message = "";
     }
 
-    //main loop; nothing in here may crash the program
+    //main loop, this should never crash the program
     public void run(){
         try{
             sim.reset();
@@ -69,7 +69,7 @@ public class Menu{
         System.out.println("  Bye!");
     }
 
-    //runs one command, returns false to quit
+    //does one command, returns false when you quit
     private boolean handle(String line)
             throws InvalidCommandException, InvalidTaskException, UnreachableDestinationException, RobotUnavailableException{
         String[] parts = line.split("\\s+");
@@ -113,7 +113,7 @@ public class Menu{
         return true;
     }
 
-    //asks for two labels and lets TaskManager check them
+    //asks for pickup and drop-off and lets TaskManager check if they're ok
     private void addTask() throws InvalidTaskException, UnreachableDestinationException{
         String pickup = input.readLine("  pickup label (e.g. Z1): ").toUpperCase();
         String dropoff = input.readLine("  drop-off label (e.g. Z4): ").toUpperCase();
@@ -121,14 +121,14 @@ public class Menu{
         message = "added task " + task;
     }
 
-    //one-line summary of a robot
+    //short summary of one robot
     private void inspect(String text) throws RobotUnavailableException{
         Robot r = sim.getRobot(robotId(text));
         String task = r.getCurrentTask() == null ? "none" : r.getCurrentTask().toString();
         message = r + " | task " + task + " | " + r.getPath().size() + " steps left | blocked " + r.getWaitTicks() + " ticks";
     }
 
-    //"2", "r2" and "R2" all mean "R2"
+    //so "2", "r2" and "R2" all work
     private String robotId(String text){
         String id = text.trim().toUpperCase();
         if(!id.startsWith("R")){
@@ -139,7 +139,7 @@ public class Menu{
 
     //---------------- drawing ----------------
 
-    //banner, map with the panel beside it, event log, legend, commands, last message
+    //draws everything: banner, map + panel, events, legend, commands, message
     private void drawScreen(){
         String body = TextUtil.sideBySide(mapText(), panelText(), 3);
         int width = TextUtil.widestLine(body);
@@ -157,7 +157,7 @@ public class Menu{
         System.out.print(sb);
     }
 
-    //each part below is drawn on its own, so a part that isn't built yet doesn't hide the others
+    //each part gets drawn on its own so if one isn't done yet the rest still shows up
 
     private String mapText(){
         if(sim.getWarehouse() == null){
@@ -201,12 +201,12 @@ public class Menu{
             + TextUtil.rule('=', width) + "\n\n";
     }
 
-    //two spaces in front of every line, blank lines kept
+    //puts 2 spaces in front of every line (keeps the blank lines too)
     private String indent(String text){
         String[] lines = text.split("\n", -1);
         int count = lines.length;
         if(count > 0 && lines[count - 1].equals("")){
-            count--; //text ends with \n, don't add an extra line
+            count--; //text already ends with a newline so don't add another line
         }
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < count; i++){
@@ -215,7 +215,7 @@ public class Menu{
         return sb.toString();
     }
 
-    //a teammate's method still throws its TODO; say which one instead of crashing
+    //if someone's method still throws its TODO, say which one instead of crashing
     private String notBuiltYet(UnsupportedOperationException e){
         return "Not built yet: " + e.getMessage();
     }

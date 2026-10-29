@@ -10,20 +10,20 @@ import warehouse.Cell;
 import warehouse.Position;
 import warehouse.Warehouse;
 
-//draws the warehouse map as a boxed grid; obstacles that touch merge into one solid block
+//draws the map as a grid of boxes, walls that touch join up into one big block
 public class GridRenderer{
-    //every cell is exactly this wide, so "R1*" and "(Z1)" line up under the column numbers
+    //every cell is this wide so stuff like "R1*" and "(Z1)" lines up with the column numbers
     public static final int CELL_WIDTH = 4;
 
-    //the map as text, with row/column numbers
-    //robots draw on top of cells; a carrying robot shows as "R1*", a stranded one as "R3!"
+    //makes the whole map as text, with the row and column numbers
+    //robots get drawn on top of the cell, "R1*" means it's carrying something and "R3!" means it's stuck
     public String render(Simulation sim){
         Warehouse w = sim.getWarehouse();
         int rows = w.getRows();
         int cols = w.getCols();
         StringBuilder sb = new StringBuilder();
 
-        //column numbers
+        //column numbers on top
         sb.append("    ");
         for(int c = 0; c < cols; c++){
             sb.append(" ").append(TextUtil.pad(" " + c, CELL_WIDTH));
@@ -37,7 +37,7 @@ public class GridRenderer{
             }
             sb.append(TextUtil.pad("  " + r, 4));
             for(int c = 0; c <= cols; c++){
-                //the wall between two obstacles is filled in
+                //fill in the wall between 2 obstacles so they look connected
                 sb.append(isObstacle(w, r, c - 1) && isObstacle(w, r, c) ? "#" : "|");
                 if(c < cols){
                     sb.append(tileText(sim, r, c));
@@ -48,12 +48,12 @@ public class GridRenderer{
         return sb.toString();
     }
 
-    //what each symbol means, printed under the screen
+    //the legend at the bottom so you know what each symbol means
     public String renderLegend(){
         return "(Z1) zone   [C1] charger   #### obstacle   ..  planned route   R1* carrying   R1! stranded";
     }
 
-    //+----+----+ line above row r; parts between obstacles are filled with #
+    //the +----+----+ line above row r, if both sides are obstacles we fill it with #
     private String borderAbove(Warehouse w, int r){
         StringBuilder sb = new StringBuilder("    ");
         for(int c = 0; c <= w.getCols(); c++){
@@ -67,7 +67,7 @@ public class GridRenderer{
         return sb.toString();
     }
 
-    //exactly CELL_WIDTH chars for one cell
+    //one cell, always CELL_WIDTH chars long
     private String tileText(Simulation sim, int r, int c){
         Position p = new Position(r, c);
         Robot robot = robotAt(sim, p);
@@ -86,7 +86,7 @@ public class GridRenderer{
         if(label != null){
             String text = cell.getType() == Cell.CHARGER ? "[" + label + "]" : "(" + label + ")";
             if(text.length() > CELL_WIDTH){
-                text = label; //"Z10" is too long for brackets
+                text = label; //"Z10" doesn't fit in the brackets
             }
             return TextUtil.pad(text, CELL_WIDTH);
         }
@@ -96,7 +96,7 @@ public class GridRenderer{
         return TextUtil.repeat(' ', CELL_WIDTH);
     }
 
-    //"R1", "R1*" when carrying, "R1!" when stranded
+    //"R1" normally, "R1*" if it's carrying, "R1!" if it's stranded
     public static String robotSymbol(Robot robot){
         if(robot.getState() instanceof StrandedState){
             return robot.getId() + "!";
@@ -107,7 +107,7 @@ public class GridRenderer{
         return robot.getId();
     }
 
-    //null when no robot is there
+    //null if there's no robot here
     private Robot robotAt(Simulation sim, Position p){
         ArrayList<Robot> robots = sim.getRobots();
         for(int i = 0; i < robots.size(); i++){
@@ -118,7 +118,7 @@ public class GridRenderer{
         return null;
     }
 
-    //true if any robot still has this cell on its path
+    //true if some robot is still going to pass through this cell
     private boolean onPlannedPath(Simulation sim, Position p){
         ArrayList<Robot> robots = sim.getRobots();
         for(int i = 0; i < robots.size(); i++){
@@ -130,7 +130,7 @@ public class GridRenderer{
         return false;
     }
 
-    //null when off the grid
+    //null if it's outside the grid
     private Cell cellAt(Warehouse w, int r, int c){
         if(r < 0 || r >= w.getRows() || c < 0 || c >= w.getCols()){
             return null;
@@ -142,7 +142,7 @@ public class GridRenderer{
         }
     }
 
-    //off the grid counts as not an obstacle so the outer border stays normal
+    //outside the grid doesn't count as an obstacle, otherwise the border looks weird
     private boolean isObstacle(Warehouse w, int r, int c){
         Cell cell = cellAt(w, r, c);
         return cell != null && cell.getType() == Cell.OBSTACLE;

@@ -10,14 +10,14 @@ import task.Task;
 import warehouse.Position;
 
 
-//the text around the map: header, robot cards, task table, chargers, recent events
+//everything around the map: header, robots, tasks, chargers, recent events
 public class StatusPanel{
-    //width of the panel next to the map
+    //how wide the panel next to the map is
     public static final int PANEL_WIDTH = 50;
-    //most task rows shown, newest last
+    //max task rows we show, newest at the bottom
     public static final int MAX_TASK_ROWS = 6;
 
-    //header, e.g. "Tick 12 | Done [1] | Active [2] | Pending [0]"
+    //top line, like "Tick 12 | Done [1] | Active [2] | Pending [0]"
     public String renderHeader(Simulation sim){
         ArrayList<Task> tasks = sim.getTaskManager().getAll();
         int done = 0;
@@ -36,7 +36,7 @@ public class StatusPanel{
         return "Tick " + sim.getTick() + " | Done [" + done + "] | Active [" + active + "] | Pending [" + pending + "]";
     }
 
-    //two lines per robot: ID, position, battery bar, percent / state, destination
+    //2 lines for each robot: id, position, battery bar, percent, then state and where it's going
     public String renderRobots(Simulation sim){
         StringBuilder sb = new StringBuilder();
         sb.append(sectionTitle("FLEET"));
@@ -57,7 +57,7 @@ public class StatusPanel{
         return sb.toString();
     }
 
-    //one row per task: ID, pickup -> drop-off, status, robot
+    //one row for each task: id, pickup -> drop-off, status, which robot has it
     public String renderTasks(Simulation sim){
         StringBuilder sb = new StringBuilder();
         sb.append(sectionTitle("TASKS"));
@@ -76,7 +76,7 @@ public class StatusPanel{
         return sb.toString();
     }
 
-    //one row per charger: who is on it and how many are waiting, then the battery numbers
+    //one row for each charger: who's on it and how many are waiting, then the battery numbers
     public String renderChargers(Simulation sim){
         StringBuilder sb = new StringBuilder();
         sb.append(sectionTitle("CHARGERS"));
@@ -95,8 +95,8 @@ public class StatusPanel{
         return sb.toString();
     }
 
-    //last `count` EventLog lines in a box `width` chars wide, newest marked with >>
-    //always `count` rows tall so the screen doesn't jump around
+    //last `count` events in a box `width` wide, the newest one has >> in front
+    //always the same height so the screen doesn't jump around
     public String renderEvents(Simulation sim, int count, int width){
         StringBuilder sb = new StringBuilder();
         sb.append(TextUtil.rule('-', width)).append("\n");
@@ -114,12 +114,12 @@ public class StatusPanel{
         return sb.toString();
     }
 
-    //battery bar like "[#########-]" on a 10-block scale
+    //battery bar like "[#########-]", 10 blocks total
     public String batteryBar(int level){
         return TextUtil.bar(level, ChargingPolicy.MAX_BATTERY, 10);
     }
 
-    //"#2 Z3 -> Z4", "-> C1" when heading to a charger, plus "(waiting 2)" when blocked
+    //"#2 Z3 -> Z4", or "-> C1" if it's going to charge, plus "(waiting 2)" if it's blocked
     private String destination(Simulation sim, Robot r){
         String text = "";
         if(r.getCurrentTask() != null){

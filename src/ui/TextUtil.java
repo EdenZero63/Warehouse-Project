@@ -1,10 +1,10 @@
 package ui;
 
 
-//small text helpers for boxes, bars and fixed-width columns; plain ASCII only
+//little helpers for boxes, bars and columns, plain ASCII only
 public class TextUtil{
 
-    //cuts or fills with spaces so the result is exactly `width` chars
+    //cuts it or adds spaces so it's exactly `width` long
     public static String pad(String text, int width){
         if(text.length() > width){
             return text.substring(0, width);
@@ -12,7 +12,7 @@ public class TextUtil{
         return text + repeat(' ', width - text.length());
     }
 
-    //the same char n times, "" when n <= 0
+    //the same char n times, "" if n is 0 or less
     public static String repeat(char ch, int n){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < n; i++){
@@ -21,17 +21,17 @@ public class TextUtil{
         return sb.toString();
     }
 
-    //+------+ that is `width` chars wide, or +======+ with '='
+    //a +------+ line that's `width` long, or +======+ if you pass '='
     public static String rule(char ch, int width){
         return "+" + repeat(ch, width - 2) + "+";
     }
 
-    //| text   | that is `width` chars wide
+    //a | text   | line that's `width` long
     public static String boxed(String text, int width){
         return "| " + pad(text, width - 4) + " |";
     }
 
-    //[######----] with `blocks` blocks, value on a 0..max scale
+    //a bar like [######----], `blocks` is how many blocks total, value goes from 0 to max
     public static String bar(int value, int max, int blocks){
         int filled = value * blocks / max;
         if(filled < 0){
@@ -43,7 +43,7 @@ public class TextUtil{
         return "[" + repeat('#', filled) + repeat('-', blocks - filled) + "]";
     }
 
-    //two blocks of lines next to each other, left one padded to its widest line
+    //puts two blocks of text side by side, the left one gets padded so the right one lines up
     public static String sideBySide(String left, String right, int gap){
         String[] l = left.split("\n");
         String[] r = right.split("\n");
@@ -61,7 +61,7 @@ public class TextUtil{
         return sb.toString();
     }
 
-    //width of the widest line
+    //how long the longest line is
     public static int widestLine(String text){
         String[] lines = text.split("\n");
         int widest = 0;
