@@ -38,7 +38,7 @@ public class GridRenderer{
             sb.append(TextUtil.pad("  " + r, 4));
             for(int c = 0; c <= cols; c++){
                 //fill in the wall between 2 obstacles so they look connected
-                sb.append(isObstacle(w, r, c - 1) && isObstacle(w, r, c) ? "#" : "|");
+                sb.append(isObstacle(w, r, c - 1) && isObstacle(w, r, c) ? Colors.paint("#", Colors.GRAY) : "|");
                 if(c < cols){
                     sb.append(tileText(sim, r, c));
                 }
@@ -48,9 +48,18 @@ public class GridRenderer{
         return sb.toString();
     }
 
-    //the legend at the bottom so you know what each symbol means
-    public String renderLegend(){
-        return "(Z1) zone   [C1] charger   #### obstacle   ..  planned route   R1* carrying   R1! stranded";
+    //the KEY box under the map, one symbol per row so it's easy to read
+    public String renderLegend(int width){
+        String[][] rows = {
+            {Colors.paint("(Z1)", Colors.CYAN), "zone, robots pick up and drop off here"},
+            {Colors.paint("[C1]", Colors.GREEN), "charger"},
+            {Colors.paint("####", Colors.GRAY), "rack, robots can't drive through it"},
+            {" " + Colors.paint("R1", Colors.BLUE), "robot"},
+            {" " + Colors.paint("R1*", Colors.BLUE), "robot carrying a load"},
+            {" " + Colors.paint("R1!", Colors.RED), "robot stranded, out of battery"},
+            {" " + Colors.paint("..", Colors.BLUE), "where a robot is going next"},
+        };
+        return TextUtil.table("KEY", rows, 6, width);
     }
 
     //the +----+----+ line above row r, if both sides are obstacles we fill it with #
@@ -59,9 +68,9 @@ public class GridRenderer{
         for(int c = 0; c <= w.getCols(); c++){
             boolean corner = isObstacle(w, r - 1, c - 1) && isObstacle(w, r - 1, c)
                 && isObstacle(w, r, c - 1) && isObstacle(w, r, c);
-            sb.append(corner ? "#" : "+");
+            sb.append(corner ? Colors.paint("#", Colors.GRAY) : "+");
             if(c < w.getCols()){
-                sb.append(isObstacle(w, r - 1, c) && isObstacle(w, r, c) ? "####" : "----");
+                sb.append(isObstacle(w, r - 1, c) && isObstacle(w, r, c) ? Colors.paint("####", Colors.GRAY) : "----");
             }
         }
         return sb.toString();
@@ -72,7 +81,7 @@ public class GridRenderer{
         Position p = new Position(r, c);
         Robot robot = robotAt(sim, p);
         if(robot != null){
-            return TextUtil.pad(" " + robotSymbol(robot), CELL_WIDTH);
+            return TextUtil.pad(" " + Colors.paint(robotSymbol(robot), Colors.robotColor(robot)), CELL_WIDTH);
         }
 
         Cell cell = cellAt(sim.getWarehouse(), r, c);
@@ -80,18 +89,21 @@ public class GridRenderer{
             return " ?? ";
         }
         if(cell.getType() == Cell.OBSTACLE){
-            return "####";
+            return Colors.paint("####", Colors.GRAY);
         }
         String label = cell.getLabel();
         if(label != null){
-            String text = cell.getType() == Cell.CHARGER ? "[" + label + "]" : "(" + label + ")";
+            boolean charger = cell.getType() == Cell.CHARGER;
+            String text = charger ? "[" + label + "]" : "(" + label + ")";
             if(text.length() > CELL_WIDTH){
                 text = label; //"Z10" doesn't fit in the brackets
             }
-            return TextUtil.pad(text, CELL_WIDTH);
+            return TextUtil.pad(Colors.paint(text, charger ? Colors.GREEN : Colors.CYAN), CELL_WIDTH);
         }
-        if(onPlannedPath(sim, p)){
-            return " .. ";
+        //the dots get the same color as the robot that's going there
+        Robot planner = plannedBy(sim, p);
+        if(planner != null){
+            return " " + Colors.paint("..", Colors.robotColor(planner)) + " ";
         }
         return TextUtil.repeat(' ', CELL_WIDTH);
     }
@@ -118,16 +130,16 @@ public class GridRenderer{
         return null;
     }
 
-    //true if some robot is still going to pass through this cell
-    private boolean onPlannedPath(Simulation sim, Position p){
+    //the robot that's still going to pass through this cell, null if none
+    private Robot plannedBy(Simulation sim, Position p){
         ArrayList<Robot> robots = sim.getRobots();
         for(int i = 0; i < robots.size(); i++){
             ArrayList<Position> path = robots.get(i).getPath();
             if(path != null && path.contains(p)){
-                return true;
+                return robots.get(i);
             }
         }
-        return false;
+        return null;
     }
 
     //null if it's outside the grid

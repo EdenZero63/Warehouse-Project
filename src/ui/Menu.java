@@ -105,6 +105,13 @@ public class Menu{
             }else{
                 message = "reset cancelled";
             }
+        }else if(cmd.equals("k")){
+            Colors.setOn(!Colors.isOn());
+            if(Colors.isOn()){
+                message = "colors on (if you see weird stuff like [32m on the map, press k again to turn them off)";
+            }else{
+                message = "colors off";
+            }
         }else if(cmd.equals("q")){
             return false;
         }else{
@@ -147,9 +154,11 @@ public class Menu{
         StringBuilder sb = new StringBuilder("\n\n");
         sb.append(indent(banner(width)));
         sb.append(indent(body)).append("\n");
-        sb.append(indent(eventsText(width)));
-        sb.append("   ").append(gridRenderer.renderLegend()).append("\n");
-        sb.append("   [Enter] next tick   n <k> run k ticks   a add task   i <n> inspect   c service robot   r reset   q quit\n");
+        sb.append(indent(eventsText(width))).append("\n");
+        //key on the left, commands on the right, splitting the width between them
+        int keyWidth = (width - 3) / 2;
+        int commandWidth = width - 3 - keyWidth;
+        sb.append(indent(TextUtil.sideBySide(gridRenderer.renderLegend(keyWidth), commandsText(commandWidth), 3)));
         if(!message.equals("")){
             sb.append("\n  ").append(message).append("\n");
             message = "";
@@ -184,6 +193,21 @@ public class Menu{
         }catch(UnsupportedOperationException e){
             return "(event log not ready: " + e.getMessage() + ")\n";
         }
+    }
+
+    //the COMMANDS box, same height as the KEY box so they sit nicely next to each other
+    private String commandsText(int width){
+        String[][] rows = {
+            {"Enter", "next tick"},
+            {"n 5", "run 5 ticks (any number up to " + MAX_TICKS_PER_COMMAND + ")"},
+            {"a", "add a task, like Z1 to Z4"},
+            {"i 2", "inspect robot R2"},
+            {"c", "service a stranded robot"},
+            {"r", "reset back to tick 0"},
+            {"k", "colors on/off"},
+            {"q", "quit"},
+        };
+        return TextUtil.table("COMMANDS", rows, 8, width);
     }
 
     //title on the left, tick and task counts on the right
