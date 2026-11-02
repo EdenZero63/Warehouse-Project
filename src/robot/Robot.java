@@ -73,7 +73,13 @@ public class Robot{
 
     //after charging: carry on with the saved task (drop-off if carrying, else pickup), or go idle
     public void resumeAfterCharging(Simulation sim){
-        //TODO (Role 3)
+        
+        //robot stops being idle
+
+        //robot detects which cell it is on
+
+        //robot picks a new status based on where it is and what it's holding
+
         throw new UnsupportedOperationException("resumeAfterCharging");
     }
 
