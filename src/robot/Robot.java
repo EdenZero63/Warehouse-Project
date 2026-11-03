@@ -40,14 +40,47 @@ public class Robot{
     //moves one cell along `path` if the next cell is free, paying MOVE_COST
     //returns false and counts a wait if another robot is in the way (DESIGN.md section 5, step 4)
     public boolean stepAlongPath(Simulation sim){
-        //TODO (Role 3)
-        throw new UnsupportedOperationException("TODO (Role 3): stepAlongPath");
+        Position nextStep = path.get(0);
+
+        //check if next step is close enough to step to
+        if (Math.abs(position.getRow() - nextStep.getRow()) > 1 && Math.abs(position.getCol() - nextStep.getCol()) > 1) {
+            //step is too far away
+            throw new UnsupportedOperationException("stepTooFar");
+        }
+
+        //check if next step is occupied
+        if (!sim.getWarehouse().isWalkable(nextStep)) {
+            //path obstructed by obstacle or out-of-bounds
+            throw new UnsupportedOperationException("stepObstructed");
+        }
+
+        //check for robots in the way of next step
+        ArrayList<Robot> robotList = sim.getRobots();
+        for (Robot robot : robotList) {
+            if (robot != this && robot.getPosition().equals(nextStep)) {
+                //robot is in the way
+                waitTicks++;
+                return false;
+            }
+        }
+
+        //if above tests pass, robot may move
+        position = nextStep;
+        path.remove(0);
+        battery.consumeTileMovement();
+        return true;
     }
 
     //after charging: carry on with the saved task (drop-off if carrying, else pickup), or go idle
     public void resumeAfterCharging(Simulation sim){
-        //TODO (Role 3)
-        throw new UnsupportedOperationException("TODO (Role 3): resumeAfterCharging");
+        
+        //robot stops being idle
+
+        //robot detects which cell it is on
+
+        //robot picks a new status based on where it is and what it's holding
+
+        throw new UnsupportedOperationException("resumeAfterCharging");
     }
 
     //status checks
