@@ -31,7 +31,7 @@ public class Task{
         this.pickup = pickup;
         this.dropoffLabel = dropoffLabel;
         this.dropoff = dropoff;
-        this.status = PENDING;
+        this.status = "PENDING";
         this.assignedRobot = null;
         this.failReason = null;
     }
@@ -44,27 +44,50 @@ public class Task{
     //status changes, markAssigned only allowed from PENDING
     public void markAssigned(Robot robot){
         //TODO (Role 6)
+        // Set robot state to ToPickupState
+        this.assignedRobot = robot;
+        this.assignedRobot.setCurrentTask(this);
+        this.assignedRobot.setState(new ToPickupState());
+        
+        this.stadus = "ASSIGNED";
         throw new UnsupportedOperationException("TODO (Role 6): markAssigned");
     }
 
     public void markPickedUp(){
         //TODO (Role 6)
+        // Set robot state to ToDropoffState
+        this.assignedRobot.setState(new ToDropoffState());
+        
+        this.stadus = "PICKED UP";
         throw new UnsupportedOperationException("TODO (Role 6): markPickedUp");
     }
 
     public void markCompleted(){
         //TODO (Role 6)
+        // Set Robot State to IdleState
+        this.assignedRobot.setState(new IdleState());
+        this.assignedRobot.setCurrentTask(null);
+        
+        this.stadus = "COMPLETED";
+        // Potentially delete task. Alternatively set assignedRobot to null
         throw new UnsupportedOperationException("TODO (Role 6): markCompleted");
     }
 
     public void markFailed(String reason){
         //TODO (Role 6)
+        // Set assignedRobot to null. Alternatively, set assignedRobot to null in returnToPending function
+        this.assignedRobot = null;
+        
+        this.stadus = "FAILED";
+        this.failReason = reason;
+        // Potentially call returnToPending()
         throw new UnsupportedOperationException("TODO (Role 6): markFailed");
     }
 
     //back to PENDING with no robot, e.g. its robot was stranded before picking up (Rule D)
     public void returnToPending(){
         //TODO (Role 6)
+        this.stadus = "PENDING";
         throw new UnsupportedOperationException("TODO (Role 6): returnToPending");
     }
 
