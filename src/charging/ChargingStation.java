@@ -97,7 +97,7 @@ public class ChargingStation {
             occupant = null;
 
             // Resume the robot after charging
-            chargedRobot.resumeAfterCharging(sim);
+            chargedRobot.resumeAfterCharging();
 
             // Let the next robot in the queue take the charger
             if (!waiting.isEmpty()) {
