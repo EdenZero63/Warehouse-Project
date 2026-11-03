@@ -44,9 +44,13 @@ public class Simulation{
 
     //rebuilds everything from the scenario and goes back to tick 0
     public void reset(){
-        //TODO (Role 1): warehouse = scenario.buildWarehouse(); robots = scenario.buildRobots();
-        //chargers = scenario.buildChargers(); taskManager.clear(); log.clear(); tick = 0;
-        throw new UnsupportedOperationException("TODO (Role 1): reset");
+        warehouse = scenario.buildWarehouse();
+        robots = scenario.buildRobots();
+        chargers = scenario.buildChargers();
+        taskManager.clear();
+        log.clear();
+        tick = 0;
+        log.add(tick, scenario.getName() + " warehouse loaded: " + robots.size() + " robots, " + chargers.size() + " chargers");
     }
 
     //advances one tick, always in this order so runs are reproducible:
@@ -64,6 +68,14 @@ public class Simulation{
     public Robot getRobot(String id) throws RobotUnavailableException{
         //TODO (Role 1)
         throw new UnsupportedOperationException("TODO (Role 1): getRobot");
+    }
+
+    //menu "c" command (Rule D): recharge a STRANDED robot by hand so it can carry on
+    //throws if the ID is unknown or the robot isn't stranded
+    public void serviceRobot(String id) throws RobotUnavailableException{
+        //TODO (Role 4): getRobot(id); if it isn't STRANDED throw RobotUnavailableException;
+        //otherwise refill the battery and call resumeAfterCharging(this)
+        throw new UnsupportedOperationException("TODO (Role 4): serviceRobot");
     }
 
     //true if any robot other than `ignore` is standing on `p`
