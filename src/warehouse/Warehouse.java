@@ -15,7 +15,12 @@ public class Warehouse{
         this.rows = rows;
         this.cols = cols;
         this.grid = new Cell[rows][cols];
-        //TODO (Role 2): fill every cell with a FLOOR cell so the grid never holds null
+        //fill it with floor so there's never a null in the grid
+        for(int r = 0; r < rows; r++){
+            for(int c = 0; c < cols; c++){
+                grid[r][c] = new Cell(Cell.FLOOR);
+            }
+        }
     }
 
     //getters
@@ -29,40 +34,52 @@ public class Warehouse{
 
     //bounds checks, by Position or by row/col
     public boolean isInBounds(Position p){
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): isInBounds");
+        return isInBounds(p.getRow(), p.getCol());
     }
 
     public boolean isInBounds(int row, int col){
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): isInBounds");
+        return row >= 0 && row < rows && col >= 0 && col < cols;
     }
 
     //in bounds and not an obstacle
     public boolean isWalkable(Position p){
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): isWalkable");
+        return isWalkable(p.getRow(), p.getCol());
     }
 
     public boolean isWalkable(int row, int col){
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): isWalkable");
+        //check bounds first so we never read outside the array
+        if(!isInBounds(row, col)){
+            return false;
+        }
+        return grid[row][col].isWalkable();
     }
 
     //read and write one cell, throws if off the grid
     public Cell getCell(Position p) throws InvalidPositionException{
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): getCell");
+        if(!isInBounds(p)){
+            throw new InvalidPositionException(p + " is outside the " + rows + "x" + cols + " map");
+        }
+        return grid[p.getRow()][p.getCol()];
     }
 
     public void setCell(Position p, Cell cell) throws InvalidPositionException{
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): setCell");
+        if(!isInBounds(p)){
+            throw new InvalidPositionException(p + " is outside the " + rows + "x" + cols + " map");
+        }
+        grid[p.getRow()][p.getCol()] = cell;
     }
 
-    //finds a labelled cell such as "P1", throws if no cell has that label
+    //finds a labelled cell such as "Z1", throws if no cell has that label
     public Position findLabel(String label) throws InvalidPositionException{
-        //TODO (Role 2)
-        throw new UnsupportedOperationException("TODO (Role 2): findLabel");
+        //go through every cell until one has the same label
+        for(int r = 0; r < rows; r++){
+            for(int c = 0; c < cols; c++){
+                String here = grid[r][c].getLabel();
+                if(here != null && here.equals(label)){
+                    return new Position(r, c);
+                }
+            }
+        }
+        throw new InvalidPositionException("there's no " + label + " on the map");
     }
 }
