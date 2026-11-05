@@ -1,4 +1,3 @@
-
 package charging;
 
 import exception.UnreachableDestinationException;
