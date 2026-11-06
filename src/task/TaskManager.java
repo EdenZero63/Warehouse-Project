@@ -23,29 +23,26 @@ public class TaskManager{
     //rejects unknown labels, pickup = drop-off, unreachable cells, and tasks too long for a full battery
     public Task createTask(String pickupLabel, String dropoffLabel, Simulation sim)
             throws InvalidTaskException, UnreachableDestinationException{
-        //TODO (Role 6): Warehouse.findLabel throws InvalidPositionException for unknown labels;
-        //catch it and throw InvalidTaskException with a clear message instead
         try {
-        // convert labels into Position objects, may throw InvalidPositionException
-        //this.createTask(pickup, dropoff, sim);
+            pickup = sim.getWarehouse().findLabel(pickupLabel);
+            dropoff = sim.getWarehouse().findLabel(dropoffLabel);
+            
+            if (pickup.equals(dropoff)) { throw new InvalidPositionException("Pickup and dropoff are the same position"); }
+            if (!sim.getWarehouse().isInBounds(pickup)) { throw new InvalidPositionException("Pickup out of bounds"); }
+            if (!sim.getWarehouse().isInBounds(dropoff)) { throw new InvalidPositionException("Dropoff out of bounds"); }
+            //TODO (Role 6): Warehouse.findLabel throws UnreachableDestinationException for unreachable cells and taks too long for a full battery;
+
+            
+            Task task = new Task(nextID, pickup, dropoff);
+            this.nextID++;
+            this.tasks.add(task);
+            return task;
         }
         catch (InvalidPositionException e) {
             throw new InvalidTaskException("Invalid Position: " + e.getMessage);
         }
         throw new UnsupportedOperationException("TODO (Role 6): createTask");
     }
-
-    //rejects unknown labels, pickup = drop-off, unreachable cells, and tasks too long for a full battery
-    public Task createTask(Position pickup, Position dropoff, Simulation sim)
-            throws InvalidPositionException, UnreachableDestinationException{
-        
-        if (pickup.equals(dropoff)) { throw new InvalidPositionException("Pickup and dropoff are the same position"); }
-        if (!sim.getWarehouse().isInBounds(pickup)) { throw new InvalidPositionException("Pickup out of bounds"); }
-        if (!sim.getWarehouse().isInBounds(dropoff)) { throw new InvalidPositionException("Dropoff out of bounds"); }
-        //TODO (Role 6): Warehouse.findLabel throws UnreachableDestinationException for unreachable cells and taks too long for a full battery;
-        throw new UnsupportedOperationException("TODO (Role 6): createTask");
-    }
-
 
     //return a copy so outside code can't change the list
     public ArrayList<Task> getAll(){
@@ -54,13 +51,22 @@ public class TaskManager{
 
     //pending tasks, oldest first
     public ArrayList<Task> getPending(){
-        //TODO (Role 6)
+        ArrayList<Task> pending = new ArrayList<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getStatus() == Task.PENDING) { pending.add(tasks.get(i)); }
+        }
+        return pending;
         throw new UnsupportedOperationException("TODO (Role 6): getPending");
     }
 
     //how many tasks have this status
     public int countByStatus(String status){
         //TODO (Role 6)
+        ArrayList<Task> tasksOfStatus = new ArrayList<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getStatus().equals()) { tasksOfStatus.add(tasks.get(i)); }
+        }
+        return tasksOfStatus;
         throw new UnsupportedOperationException("TODO (Role 6): countByStatus");
     }
 
