@@ -43,7 +43,7 @@ public class Dispatcher{
                 }
                 else {
                     //TODO (Role 6): Update with the proper function call to send a robot to charge
-                    robot.goCharge();
+                    robot.setState(new ChargingState());
                 }
             }
         }
