@@ -36,8 +36,8 @@ public class Dispatcher{
                         continue;
                     }
                     // Is the current robot closer?
-                    robotDistance = PathFinder.distance(sim.getWarehouse(), robot.getPosition(), task.getPickup());
-                    closestDistance = PathFinder.distance(sim.getWarehouse(), closest.getPosition(), task.getPickup());
+                    robotDistance = BfsPathFinder.distance(sim.getWarehouse(), robot.getPosition(), task.getPickup());
+                    closestDistance = BfsPathFinder.distance(sim.getWarehouse(), closest.getPosition(), task.getPickup());
                     if (robotDistance < closestDistance) { closest = robot; }
                     else if ((robotDistance == closestDistance)&&(robot.getId() < closest.getID())) { closest = robot; }
                 }
