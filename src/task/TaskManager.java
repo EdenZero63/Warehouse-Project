@@ -6,7 +6,7 @@ import exception.InvalidTaskException;
 import exception.UnreachableDestinationException;
 import sim.Simulation;
 
-//owner: Role 6 (tasks and dispatch)
+//owner: Role 6 (tasks and dispatch): James Whiting
 //creates, stores and counts tasks
 public class TaskManager{
     //fields
@@ -30,10 +30,10 @@ public class TaskManager{
             if (pickup.equals(dropoff)) { throw new InvalidPositionException("Pickup and dropoff are the same position"); }
             if (!sim.getWarehouse().isInBounds(pickup)) { throw new InvalidPositionException("Pickup out of bounds"); }
             if (!sim.getWarehouse().isInBounds(dropoff)) { throw new InvalidPositionException("Dropoff out of bounds"); }
-            //TODO (Role 6): Warehouse.findLabel throws UnreachableDestinationException for unreachable cells and taks too long for a full battery;
-
-            
             Task task = new Task(nextID, pickup, dropoff);
+            //TODO (Role 6): Warehouse.findLabel throws UnreachableDestinationException for unreachable cells (Will be caught by check for isPossibleOnFullBattery)
+            if (!ChargingPolicy.isPossibleOnFullBattery(task, sim)) { throw new UnreachableDestinationException("Cannot reach on full batery"); }
+            
             this.nextID++;
             this.tasks.add(task);
             return task;
