@@ -3,7 +3,7 @@ package task;
 import robot.Robot;
 import warehouse.Position;
 
-//owner: Role 6 (tasks and dispatch)
+//owner: Role 6 (tasks and dispatch): James Whiting
 //one pickup-and-delivery job: PENDING -> ASSIGNED -> PICKED_UP -> COMPLETED (or FAILED)
 //statuses are String constants for now, switch to an enum if the class has covered enums
 public class Task{
