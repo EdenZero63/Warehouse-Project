@@ -31,11 +31,14 @@ public class Dispatcher{
             Robot robot = sim.getRobots().get(i);
             if (robot.isIdle()) {
                 if (ChargingPolicy.canAcceptTask(robot, task, sim)) {
-                    if (closest == null) { closest = robot; }
+                    if (closest == null) {
+                        closest = robot;
+                        continue;
+                    }
                     // Is the current robot closer?
-                    robotDistance = ChargingPolicy.pathDistance(robot.getPosition(), task.getPickup(), sim));
-                    closestDistance = ChargingPolicy.pathDistance(closest.getPosition(), task.getPickup(), sim))
-                    else if (robotDistance < closestDistance) { closest = robot; }
+                    robotDistance = PathFinder.distance(sim.getWarehouse(), robot.getPosition(), task.getPickup());
+                    closestDistance = PathFinder.distance(sim.getWarehouse(), closest.getPosition(), task.getPickup());
+                    if (robotDistance < closestDistance) { closest = robot; }
                     else if ((robotDistance == closestDistance)&&(robot.getId() < closest.getID())) { closest = robot; }
                 }
                 else {
