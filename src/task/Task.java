@@ -58,7 +58,7 @@ public class Task{
         // Set robot state to ToDropoffState
         this.assignedRobot.setState(new ToDropoffState());
         
-        this.stadus = "PICKED UP";
+        this.stadus = "PICKED_UP";
         throw new UnsupportedOperationException("TODO (Role 6): markPickedUp");
     }
 
