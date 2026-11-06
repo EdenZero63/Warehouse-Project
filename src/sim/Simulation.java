@@ -8,14 +8,15 @@ import exception.RobotUnavailableException;
 import navigation.BfsPathFinder;
 import navigation.PathFinder;
 import robot.Robot;
+import robot.StrandedState;
 import task.Dispatcher;
 import task.TaskManager;
 import warehouse.Position;
 import warehouse.Warehouse;
 
-//owner: Role 1 (integration lead)
+//owner: Role 1 (integration lead), serviced & battery handling by Role 7
 //holds the whole world and advances it one tick at a time (DESIGN.md section 5)
-public class Simulation{
+public class Simulation {
     //fields
     private final Scenario scenario;
     private final PathFinder pathFinder;
@@ -29,7 +30,7 @@ public class Simulation{
     private int tick;
 
     //constructor, reset() fills in the warehouse, robots and chargers (the menu calls it at startup)
-    public Simulation(Scenario scenario){
+    public Simulation(Scenario scenario) {
         this.scenario = scenario;
         this.pathFinder = new BfsPathFinder();
         this.chargingPolicy = new ChargingPolicy();
@@ -43,10 +44,14 @@ public class Simulation{
     }
 
     //rebuilds everything from the scenario and goes back to tick 0
-    public void reset(){
-        //TODO (Role 1): warehouse = scenario.buildWarehouse(); robots = scenario.buildRobots();
-        //chargers = scenario.buildChargers(); taskManager.clear(); log.clear(); tick = 0;
-        throw new UnsupportedOperationException("TODO (Role 1): reset");
+    public void reset() {
+        warehouse = scenario.buildWarehouse();
+        robots = scenario.buildRobots();
+        chargers = scenario.buildChargers();
+        taskManager.clear();
+        log.clear();
+        tick = 0;
+        log.add(tick, scenario.getName() + " warehouse loaded: " + robots.size() + " robots, " + chargers.size() + " chargers");
     }
 
     //advances one tick, always in this order so runs are reproducible:
@@ -55,61 +60,116 @@ public class Simulation{
     //  3. robot.update(this) for each robot, in ID order
     //  4. charger.update(this) for each charger
     //  (states and chargers write to the log as things happen)
-    public void nextTick(){
-        //TODO (Role 1)
-        throw new UnsupportedOperationException("TODO (Role 1): nextTick");
+    public void nextTick() {
+        tick++;
+
+        // 1. Assign pending tasks to idle robots via dispatcher
+        try {
+            dispatcher.assignTasks(this);
+        } catch (UnsupportedOperationException e) {
+            // Role 6 may still be implementing assignTasks
+        }
+
+        // 2. Update each robot in ID order (R1, R2, R3...)
+        for (int i = 0; i < robots.size(); i++) {
+            try {
+                robots.get(i).update(this);
+            } catch (UnsupportedOperationException e) {
+                // Allows running even if certain robot sub-states are pending
+            }
+        }
+
+        // 3. Update each charging station (charges occupants, manages queue)
+        for (int i = 0; i < chargers.size(); i++) {
+            chargers.get(i).update(this);
+        }
     }
 
     //find a robot by ID such as "R2", throws if missing
-    public Robot getRobot(String id) throws RobotUnavailableException{
-        //TODO (Role 1)
-        throw new UnsupportedOperationException("TODO (Role 1): getRobot");
+    public Robot getRobot(String id) throws RobotUnavailableException {
+        if (id == null) {
+            throw new RobotUnavailableException("Robot ID cannot be null.");
+        }
+        for (int i = 0; i < robots.size(); i++) {
+            Robot r = robots.get(i);
+            if (r.getId().equalsIgnoreCase(id.trim())) {
+                return r;
+            }
+        }
+        throw new RobotUnavailableException("No robot found with ID: " + id);
+    }
+
+    //menu "c" command (Rule D): recharge a STRANDED robot by hand so it can carry on
+    //throws if the ID is unknown or the robot isn't stranded
+    public void serviceRobot(String id) throws RobotUnavailableException {
+        // 1. Locate the robot
+        Robot robot = getRobot(id);
+
+        // 2. Validate it is actually stranded (Rule D)
+        if (!(robot.getState() instanceof StrandedState)) {
+            throw new RobotUnavailableException("Robot " + id + " is not stranded (current state: " + robot.getState().getLabel() + ").");
+        }
+
+        // 3. Refill the battery back to full capacity (100%)
+        robot.getBattery().charge(ChargingPolicy.MAX_BATTERY);
+
+        // 4. Resume the robot so it can carry on
+        robot.resumeAfterCharging(this);
+        log.add(tick, id + " serviced and fully recharged");
     }
 
     //true if any robot other than `ignore` is standing on `p`
-    public boolean isOccupied(Position p, Robot ignore){
-        //TODO (Role 1)
-        throw new UnsupportedOperationException("TODO (Role 1): isOccupied");
+    public boolean isOccupied(Position p, Robot ignore) {
+        if (p == null) {
+            return false;
+        }
+        for (int i = 0; i < robots.size(); i++) {
+            Robot r = robots.get(i);
+            if (r != ignore && p.equals(r.getPosition())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     //getters
-    public Scenario getScenario(){
+    public Scenario getScenario() {
         return scenario;
     }
 
-    public Warehouse getWarehouse(){
+    public Warehouse getWarehouse() {
         return warehouse;
     }
 
-    public ArrayList<Robot> getRobots(){
+    public ArrayList<Robot> getRobots() {
         return robots;
     }
 
-    public ArrayList<ChargingStation> getChargers(){
+    public ArrayList<ChargingStation> getChargers() {
         return chargers;
     }
 
-    public PathFinder getPathFinder(){
+    public PathFinder getPathFinder() {
         return pathFinder;
     }
 
-    public ChargingPolicy getChargingPolicy(){
+    public ChargingPolicy getChargingPolicy() {
         return chargingPolicy;
     }
 
-    public TaskManager getTaskManager(){
+    public TaskManager getTaskManager() {
         return taskManager;
     }
 
-    public Dispatcher getDispatcher(){
+    public Dispatcher getDispatcher() {
         return dispatcher;
     }
 
-    public EventLog getLog(){
+    public EventLog getLog() {
         return log;
     }
 
-    public int getTick(){
+    public int getTick() {
         return tick;
     }
 }

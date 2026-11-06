@@ -15,14 +15,18 @@ public class EventLog{
 
     //add one line, stored as "T12 message"
     public void add(int tick, String message){
-        //TODO (Role 1)
-        throw new UnsupportedOperationException("TODO (Role 1): add");
+        entries.add("T" + tick + " " + message);
     }
 
     //last `count` entries, oldest first
     public ArrayList<String> getRecent(int count){
-        //TODO (Role 1)
-        throw new UnsupportedOperationException("TODO (Role 1): getRecent");
+        ArrayList<String> recent = new ArrayList<String>();
+        //start count entries from the end (or at 0 if there aren't that many yet)
+        int start = Math.max(0, entries.size() - count);
+        for(int i = start; i < entries.size(); i++){
+            recent.add(entries.get(i));
+        }
+        return recent;
     }
 
     //used by reset
