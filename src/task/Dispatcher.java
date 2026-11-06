@@ -42,7 +42,7 @@ public class Dispatcher{
                     else if ((robotDistance == closestDistance)&&(robot.getId() < closest.getID())) { closest = robot; }
                 }
                 else {
-                    robot.setState(new ToChargingState());
+                    robot.setState(new ToChargerState());
                 }
             }
         }
