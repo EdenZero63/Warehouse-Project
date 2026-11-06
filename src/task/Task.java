@@ -31,7 +31,7 @@ public class Task{
         this.pickup = pickup;
         this.dropoffLabel = dropoffLabel;
         this.dropoff = dropoff;
-        this.status = "PENDING";
+        this.status = PENDING;
         this.assignedRobot = null;
         this.failReason = null;
     }
@@ -49,7 +49,7 @@ public class Task{
         this.assignedRobot.setCurrentTask(this);
         this.assignedRobot.setState(new ToPickupState());
         
-        this.stadus = "ASSIGNED";
+        this.stadus = ASSIGNED;
         throw new UnsupportedOperationException("TODO (Role 6): markAssigned");
     }
 
@@ -58,7 +58,7 @@ public class Task{
         // Set robot state to ToDropoffState
         this.assignedRobot.setState(new ToDropoffState());
         
-        this.stadus = "PICKED_UP";
+        this.stadus = PICKED_UP;
         throw new UnsupportedOperationException("TODO (Role 6): markPickedUp");
     }
 
@@ -68,7 +68,7 @@ public class Task{
         this.assignedRobot.setState(new IdleState());
         this.assignedRobot.setCurrentTask(null);
         
-        this.stadus = "COMPLETED";
+        this.stadus = COMPLETED;
         // Potentially delete task. Alternatively set assignedRobot to null
         throw new UnsupportedOperationException("TODO (Role 6): markCompleted");
     }
@@ -78,7 +78,7 @@ public class Task{
         // Set assignedRobot to null. Alternatively, set assignedRobot to null in returnToPending function
         this.assignedRobot = null;
         
-        this.stadus = "FAILED";
+        this.stadus = FAILED;
         this.failReason = reason;
         // Potentially call returnToPending()
         throw new UnsupportedOperationException("TODO (Role 6): markFailed");
@@ -87,7 +87,7 @@ public class Task{
     //back to PENDING with no robot, e.g. its robot was stranded before picking up (Rule D)
     public void returnToPending(){
         //TODO (Role 6)
-        this.stadus = "PENDING";
+        this.stadus = PENDING;
         throw new UnsupportedOperationException("TODO (Role 6): returnToPending");
     }
 
