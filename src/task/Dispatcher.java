@@ -10,6 +10,14 @@ public class Dispatcher{
     //ties go to the lower robot ID; an idle robot that fails Rule A is sent to charge, task stays PENDING
     public void assignTasks(Simulation sim){
         //TODO (Role 6)
+        /*
+        oldestTask = taskQueue.pop();
+        // create a list of robots sorted by closest to oldestTask.getPickup() and then to the lower robot ID
+        while(!oldestTask.getStatus().equals("PENDING"))
+            nextClosestRobot = robots.next;
+            if (nextClosestRobot.canAcceptTask) oldestTask.markAssigned(nextClosestRobot);
+        // Task has been assigned. Call again to assign another task.
+        */
         throw new UnsupportedOperationException("TODO (Role 6): assignTasks");
     }
 }
