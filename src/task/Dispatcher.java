@@ -42,7 +42,6 @@ public class Dispatcher{
                     else if ((robotDistance == closestDistance)&&(robot.getId() < closest.getID())) { closest = robot; }
                 }
                 else {
-                    //TODO (Role 6): Update with the proper function call to send a robot to charge
                     robot.setState(new ChargingState());
                 }
             }
