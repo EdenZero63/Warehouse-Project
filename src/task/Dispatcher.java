@@ -13,7 +13,7 @@ public class Dispatcher{
         /*
         oldestTask = taskQueue.pop();
         // create a list of robots sorted by closest to oldestTask.getPickup() and then to the lower robot ID
-        while(!oldestTask.getStatus().equals("PENDING"))
+        while(!oldestTask.getStatus() == Task.PENDING)
             nextClosestRobot = robots.next;
             if (nextClosestRobot.canAcceptTask) oldestTask.markAssigned(nextClosestRobot);
         // Task has been assigned. Call again to assign another task.
