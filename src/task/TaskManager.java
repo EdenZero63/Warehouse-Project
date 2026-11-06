@@ -61,7 +61,6 @@ public class TaskManager{
 
     //how many tasks have this status
     public int countByStatus(String status){
-        //TODO (Role 6)
         ArrayList<Task> tasksOfStatus = new ArrayList<>();
         for (int i = 0; i < tasks.size(); i++) {
             if (tasks.get(i).getStatus().equals()) { tasksOfStatus.add(tasks.get(i)); }
