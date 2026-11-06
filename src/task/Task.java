@@ -3,7 +3,7 @@ package task;
 import robot.Robot;
 import warehouse.Position;
 
-//owner: Role 6 (tasks and dispatch)
+//owner: Role 6 (tasks and dispatch): James Whiting
 //one pickup-and-delivery job: PENDING -> ASSIGNED -> PICKED_UP -> COMPLETED (or FAILED)
 //statuses are String constants for now, switch to an enum if the class has covered enums
 public class Task{
@@ -58,7 +58,7 @@ public class Task{
         // Set robot state to ToDropoffState
         this.assignedRobot.setState(new ToDropoffState());
         
-        this.stadus = "PICKED UP";
+        this.stadus = "PICKED_UP";
         throw new UnsupportedOperationException("TODO (Role 6): markPickedUp");
     }
 
