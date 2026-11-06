@@ -59,6 +59,13 @@ public class TaskManager{
         throw new UnsupportedOperationException("TODO (Role 6): getPending");
     }
 
+    public Task getOldestPending(){
+        for (int i = 0; i < tasks.size(); i++) {
+            if (tasks.get(i).getStatus() == Task.PENDING) { return tasks.get(i); }
+        }
+        throw new UnsupportedOperationException("TODO (Role 6): getPending");
+    }
+
     //how many tasks have this status
     public int countByStatus(String status){
         int count = 0;
