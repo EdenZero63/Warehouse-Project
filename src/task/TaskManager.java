@@ -61,11 +61,11 @@ public class TaskManager{
 
     //how many tasks have this status
     public int countByStatus(String status){
-        ArrayList<Task> tasksOfStatus = new ArrayList<>();
+        int count = 0;
         for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getStatus().equals()) { tasksOfStatus.add(tasks.get(i)); }
+            if (tasks.get(i).getStatus().equals()) { count++; }
         }
-        return tasksOfStatus;
+        return count;
         throw new UnsupportedOperationException("TODO (Role 6): countByStatus");
     }
 
