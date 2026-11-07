@@ -18,7 +18,7 @@ public class ChargingPolicy {
     public static final int WAIT_COST = 0;
     public static final int CHARGE_RATE = 15;
     public static final int RESERVE = 6;
-    public static final int RELEASE_LEVEL = 80;
+    public static final int RELEASE_LEVEL = 90;
 
     //Rule A: robot -> pickup -> drop-off -> nearest charger
     //and still RESERVE left

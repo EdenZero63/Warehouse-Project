@@ -1,5 +1,9 @@
 package task;
 
+import charging.ChargingPolicy;
+import exception.RobotUnavailableException;
+import exception.UnreachableDestinationException;
+import robot.Robot;
 import robot.ToChargerState;
 import sim.Simulation;
 
@@ -11,14 +15,16 @@ public class Dispatcher{
     //ties go to the lower robot ID; an idle robot that fails Rule A is sent to charge, task stays PENDING
     public void assignTasks(Simulation sim){
         Task task = sim.getTaskManager().getOldestPending();
+        if (task == null) { return; } // nothing waiting this tick
 
         try {
-            Robot robot = this.getClosestIdleRobot(task, sim);
+            Robot robot = getClosestIdleRobot(task, sim);
             task.markAssigned(robot);
+            sim.getLog().add(sim.getTick(), robot.getId() + " assigned task #" + task.getId());
             // Task has been assigned. Call again to assign another task.
         }
         catch (RobotUnavailableException e) {
-            System.err.println(e.getMessage);
+            // No idle robot can take it right now, so the task stays PENDING (DESIGN.md section 6)
         }
     }
 
@@ -28,21 +34,29 @@ public class Dispatcher{
     public static Robot getClosestIdleRobot(Task task, Simulation sim)
             throws RobotUnavailableException{
         Robot closest = null;
+        int closestDistance = 0;
         for (int i = 0; i < sim.getRobots().size(); i++) {
             Robot robot = sim.getRobots().get(i);
             if (robot.isIdle()) {
-                if (ChargingPolicy.canAcceptTask(robot, task, sim)) {
+                if (sim.getChargingPolicy().canAcceptTask(robot, task, sim)) {
+                    int robotDistance;
+                    try {
+                        robotDistance = sim.getPathFinder().distance(sim.getWarehouse(), robot.getPosition(), task.getPickup());
+                    }
+                    catch (UnreachableDestinationException e) {
+                        continue; // can't reach the pickup from here
+                    }
                     if (closest == null) {
                         closest = robot;
+                        closestDistance = robotDistance;
                         continue;
                     }
                     // Is the current robot closer?
-                    robotDistance = BfsPathFinder.distance(sim.getWarehouse(), robot.getPosition(), task.getPickup());
-                    closestDistance = BfsPathFinder.distance(sim.getWarehouse(), closest.getPosition(), task.getPickup());
-                    if (robotDistance < closestDistance) { closest = robot; }
-                    else if ((robotDistance == closestDistance)&&(robot.getId() < closest.getID())) { closest = robot; }
+                    if (robotDistance < closestDistance) { closest = robot; closestDistance = robotDistance; }
+                    else if ((robotDistance == closestDistance)&&(robot.getId().compareTo(closest.getId()) < 0)) { closest = robot; closestDistance = robotDistance; }
                 }
-                else {
+                else if (robot.getBattery().getLevel() < ChargingPolicy.RELEASE_LEVEL) {
+                    // Only charge below RELEASE_LEVEL, otherwise a full robot bounces on and off the charger
                     robot.setState(new ToChargerState());
                 }
             }
