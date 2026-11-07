@@ -2,9 +2,11 @@ package task;
 
 import java.util.ArrayList;
 
+import exception.InvalidPositionException;
 import exception.InvalidTaskException;
 import exception.UnreachableDestinationException;
 import sim.Simulation;
+import warehouse.Position;
 
 //owner: Role 6 (tasks and dispatch): James Whiting
 //creates, stores and counts tasks
@@ -19,29 +21,30 @@ public class TaskManager{
         this.nextId = 1;
     }
 
-    //builds a task from labels like "P1" and "D2"
+    //builds a task from labels like "Z1" and "Z4"
     //rejects unknown labels, pickup = drop-off, unreachable cells, and tasks too long for a full battery
     public Task createTask(String pickupLabel, String dropoffLabel, Simulation sim)
             throws InvalidTaskException, UnreachableDestinationException{
         try {
-            pickup = sim.getWarehouse().findLabel(pickupLabel);
-            dropoff = sim.getWarehouse().findLabel(dropoffLabel);
+            Position pickup = sim.getWarehouse().findLabel(pickupLabel);
+            Position dropoff = sim.getWarehouse().findLabel(dropoffLabel);
             
             if (pickup.equals(dropoff)) { throw new InvalidPositionException("Pickup and dropoff are the same position"); }
             if (!sim.getWarehouse().isInBounds(pickup)) { throw new InvalidPositionException("Pickup out of bounds"); }
             if (!sim.getWarehouse().isInBounds(dropoff)) { throw new InvalidPositionException("Dropoff out of bounds"); }
-            Task task = new Task(nextID, pickup, dropoff);
-            //TODO (Role 6): Warehouse.findLabel throws UnreachableDestinationException for unreachable cells (Will be caught by check for isPossibleOnFullBattery)
-            if (!ChargingPolicy.isPossibleOnFullBattery(task, sim)) { throw new UnreachableDestinationException("Cannot reach on full batery"); }
+            // Walled off: distance throws UnreachableDestinationException (DESIGN.md section 6)
+            sim.getPathFinder().distance(sim.getWarehouse(), pickup, dropoff);
+            Task task = new Task(nextId, pickupLabel, pickup, dropoffLabel, dropoff);
+            // Too long for a full battery is an InvalidTaskException (Rule A, DESIGN.md section 6)
+            if (!sim.getChargingPolicy().isPossibleOnFullBattery(task, sim)) { throw new InvalidTaskException("Task is too long for a full battery"); }
             
-            this.nextID++;
+            this.nextId++;
             this.tasks.add(task);
             return task;
         }
         catch (InvalidPositionException e) {
-            throw new InvalidTaskException("Invalid Position: " + e.getMessage);
+            throw new InvalidTaskException("Invalid Position: " + e.getMessage());
         }
-        throw new UnsupportedOperationException("TODO (Role 6): createTask");
     }
 
     //return a copy so outside code can't change the list
@@ -53,27 +56,26 @@ public class TaskManager{
     public ArrayList<Task> getPending(){
         ArrayList<Task> pending = new ArrayList<>();
         for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getStatus() == Task.PENDING) { pending.add(tasks.get(i)); }
+            if (tasks.get(i).getStatus().equals(Task.PENDING)) { pending.add(tasks.get(i)); }
         }
         return pending;
-        throw new UnsupportedOperationException("TODO (Role 6): getPending");
     }
 
+    //oldest pending task, null if nothing is waiting
     public Task getOldestPending(){
         for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getStatus() == Task.PENDING) { return tasks.get(i); }
+            if (tasks.get(i).getStatus().equals(Task.PENDING)) { return tasks.get(i); }
         }
-        throw new UnsupportedOperationException("TODO (Role 6): getPending");
+        return null;
     }
 
     //how many tasks have this status
     public int countByStatus(String status){
         int count = 0;
         for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getStatus().equals()) { count++; }
+            if (tasks.get(i).getStatus().equals(status)) { count++; }
         }
         return count;
-        throw new UnsupportedOperationException("TODO (Role 6): countByStatus");
     }
 
     //used by reset: removes every task and restarts IDs at 1

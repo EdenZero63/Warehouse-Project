@@ -19,9 +19,9 @@ public class Task{
 
     //fields
     private final int id;
-    private final String pickupLabel; //"P1"
+    private final String pickupLabel; //"Z1"
     private final Position pickup;
-    private final String dropoffLabel; //"D2"
+    private final String dropoffLabel; //"Z4"
     private final Position dropoff;
     private String status;
     private Robot assignedRobot; //null until assigned
@@ -46,52 +46,46 @@ public class Task{
 
     //status changes, markAssigned only allowed from PENDING
     public void markAssigned(Robot robot){
-        //TODO (Role 6)
+        if (!PENDING.equals(status)) { throw new IllegalStateException("Task #" + id + " is " + status + ", not PENDING"); }
         // Set robot state to ToPickupState
         this.assignedRobot = robot;
         this.assignedRobot.setCurrentTask(this);
         this.assignedRobot.setState(new ToPickupState());
         
-        this.stadus = ASSIGNED;
-        throw new UnsupportedOperationException("TODO (Role 6): markAssigned");
+        this.status = ASSIGNED;
     }
 
     public void markPickedUp(){
-        //TODO (Role 6)
         // Set robot state to ToDropoffState
         this.assignedRobot.setState(new ToDropoffState());
         
-        this.stadus = PICKED_UP;
-        throw new UnsupportedOperationException("TODO (Role 6): markPickedUp");
+        this.status = PICKED_UP;
     }
 
     public void markCompleted(){
-        //TODO (Role 6)
         // Set Robot State to IdleState
         this.assignedRobot.setState(new IdleState());
         this.assignedRobot.setCurrentTask(null);
         
-        this.stadus = COMPLETED;
+        this.status = COMPLETED;
         // Potentially delete task. Alternatively set assignedRobot to null
-        throw new UnsupportedOperationException("TODO (Role 6): markCompleted");
     }
 
     public void markFailed(String reason){
-        //TODO (Role 6)
         // Set assignedRobot to null. Alternatively, set assignedRobot to null in returnToPending function
+        if (this.assignedRobot != null) { this.assignedRobot.setCurrentTask(null); }
         this.assignedRobot = null;
         
-        this.stadus = FAILED;
+        this.status = FAILED;
         this.failReason = reason;
         // Potentially call returnToPending()
-        throw new UnsupportedOperationException("TODO (Role 6): markFailed");
     }
 
     //back to PENDING with no robot, e.g. its robot was stranded before picking up (Rule D)
     public void returnToPending(){
-        //TODO (Role 6)
-        this.stadus = PENDING;
-        throw new UnsupportedOperationException("TODO (Role 6): returnToPending");
+        if (this.assignedRobot != null) { this.assignedRobot.setCurrentTask(null); }
+        this.assignedRobot = null;
+        this.status = PENDING;
     }
 
     //getters
@@ -127,7 +121,7 @@ public class Task{
         return failReason;
     }
 
-    //prints as "#1 P1 -> D2 PENDING"
+    //prints as "#1 Z1 -> Z4 PENDING"
     @Override
     public String toString(){
         return "#" + id + " " + pickupLabel + " -> " + dropoffLabel + " " + status;
