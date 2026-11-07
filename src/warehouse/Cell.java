@@ -1,17 +1,18 @@
 package warehouse;
 
 //owner: Role 2 (warehouse map)
-//one square of the warehouse: floor, obstacle, zone or charger
+//one square of the warehouse: floor, obstacle, pickup point, drop-off point or charger
 public class Cell{
     //cell types
     public static final char FLOOR = '.';
     public static final char OBSTACLE = '#';
-    public static final char ZONE = 'Z'; //tasks pick up and drop off at zones
+    public static final char PICKUP = 'P'; //tasks pick up items here
+    public static final char DROPOFF = 'D'; //tasks drop items off here
     public static final char CHARGER = 'C';
 
     //fields
     private final char type;
-    private final String label; //"Z1", "C2" and so on, null for floor and obstacles
+    private final String label; //"P1", "D2", "C3" and so on, null for floor and obstacles
 
     //constructors, label defaults to null
     public Cell(char type){

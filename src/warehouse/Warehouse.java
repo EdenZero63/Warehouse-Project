@@ -69,7 +69,7 @@ public class Warehouse{
         grid[p.getRow()][p.getCol()] = cell;
     }
 
-    //finds a labelled cell such as "Z1", throws if no cell has that label
+    //finds a labelled cell such as "P1", throws if no cell has that label
     public Position findLabel(String label) throws InvalidPositionException{
         //go through every cell until one has the same label
         for(int r = 0; r < rows; r++){
