@@ -123,7 +123,7 @@ public class StatusPanel{
         return TextUtil.bar(level, ChargingPolicy.MAX_BATTERY, 10);
     }
 
-    //"#2 Z3 -> Z4", or "-> C1" if it's going to charge, plus "(waiting 2)" if it's blocked
+    //"#2 P2 -> D1", or "-> C1" if it's going to charge, plus "(waiting 2)" if it's blocked
     private String destination(Simulation sim, Robot r){
         String text = "";
         if(r.getCurrentTask() != null){

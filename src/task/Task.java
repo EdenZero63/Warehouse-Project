@@ -19,9 +19,9 @@ public class Task{
 
     //fields
     private final int id;
-    private final String pickupLabel; //"Z1"
+    private final String pickupLabel; //"P1"
     private final Position pickup;
-    private final String dropoffLabel; //"Z4"
+    private final String dropoffLabel; //"D2"
     private final Position dropoff;
     private String status;
     private Robot assignedRobot; //null until assigned
@@ -121,7 +121,7 @@ public class Task{
         return failReason;
     }
 
-    //prints as "#1 Z1 -> Z4 PENDING"
+    //prints as "#1 P1 -> D2 PENDING"
     @Override
     public String toString(){
         return "#" + id + " " + pickupLabel + " -> " + dropoffLabel + " " + status;

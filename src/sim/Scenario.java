@@ -30,19 +30,19 @@ public class Scenario{
     }
 
     //10x10 warehouse: 2x2 racks with aisles between them
-    //Z = zone (a task can pick up or drop off at any zone), C = charger, # = rack, . = floor
-    //labels are numbered in reading order (left to right, top to bottom): Z1..Z4, C1..C4
-    //each charger sits in a dead-end alcove 2 moves from its zone, so no route has to drive through one,
-    //and every zone-to-zone task fits in one battery at 5%/move (longest needs 76%)
+    //P = pickup point (left side), D = drop-off point (right side), C = charger, # = rack, . = floor
+    //labels are numbered in reading order (left to right, top to bottom): P1 P2, D1 D2, C1..C4
+    //each charger sits in a dead-end alcove 2 moves from its P or D, so no route has to drive through one,
+    //and every P-to-D task fits in one battery at 5%/move (longest, P1 -> D2, needs 76%)
     public static Scenario createDefault(){
         String[] layout = {
             "..........",
             ".##.##.##.",
             "C##.##.##C",
-            ".Z......Z.",
+            ".P......D.",
             "....##....",
             "....##....",
-            ".Z......Z.",
+            ".P......D.",
             "C##.##.##C",
             ".##.##.##.",
             "..........",
@@ -63,10 +63,11 @@ public class Scenario{
         int rows = layout.length;
         int cols = layout[0].length();
         Warehouse warehouse = new Warehouse(rows, cols);
-        int zones = 0;
+        int pickups = 0;
+        int dropoffs = 0;
         int chargers = 0;
 
-        //one Cell per character, Z and C get numbered as we go (reading order)
+        //one Cell per character, P, D and C get numbered as we go (reading order)
         for(int r = 0; r < rows; r++){
             if(layout[r].length() != cols){
                 throw new IllegalArgumentException("layout row " + r + " should be " + cols + " characters long");
@@ -74,9 +75,12 @@ public class Scenario{
             for(int c = 0; c < cols; c++){
                 char type = layout[r].charAt(c);
                 String label = null;
-                if(type == Cell.ZONE){
-                    zones++;
-                    label = "Z" + zones;
+                if(type == Cell.PICKUP){
+                    pickups++;
+                    label = "P" + pickups;
+                }else if(type == Cell.DROPOFF){
+                    dropoffs++;
+                    label = "D" + dropoffs;
                 }else if(type == Cell.CHARGER){
                     chargers++;
                     label = "C" + chargers;

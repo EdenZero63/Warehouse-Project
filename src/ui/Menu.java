@@ -122,8 +122,8 @@ public class Menu{
 
     //asks for pickup and drop-off and lets TaskManager check if they're ok
     private void addTask() throws InvalidTaskException, UnreachableDestinationException{
-        String pickup = input.readLine("  pickup label (e.g. Z1): ").toUpperCase();
-        String dropoff = input.readLine("  drop-off label (e.g. Z4): ").toUpperCase();
+        String pickup = input.readLine("  pickup point (e.g. P1): ").toUpperCase();
+        String dropoff = input.readLine("  drop-off point (e.g. D2): ").toUpperCase();
         Task task = sim.getTaskManager().createTask(pickup, dropoff, sim);
         message = "added task " + task;
     }
@@ -200,7 +200,7 @@ public class Menu{
         String[][] rows = {
             {"Enter", "next tick"},
             {"n 5", "run 5 ticks (any number up to " + MAX_TICKS_PER_COMMAND + ")"},
-            {"a", "add a task, like Z1 to Z4"},
+            {"a", "add a task, like P1 to D2"},
             {"i 2", "inspect robot R2"},
             {"c", "service a stranded robot"},
             {"r", "reset back to tick 0"},

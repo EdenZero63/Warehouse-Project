@@ -12,7 +12,7 @@ import warehouse.Warehouse;
 
 //draws the map as a grid of boxes, walls that touch join up into one big block
 public class GridRenderer{
-    //every cell is this wide so stuff like "R1*" and "(Z1)" lines up with the column numbers
+    //every cell is this wide so stuff like "R1*" and "(P1)" lines up with the column numbers
     public static final int CELL_WIDTH = 4;
 
     //makes the whole map as text, with the row and column numbers
@@ -51,7 +51,8 @@ public class GridRenderer{
     //the KEY box under the map, one symbol per row so it's easy to read
     public String renderLegend(int width){
         String[][] rows = {
-            {Colors.paint("(Z1)", Colors.CYAN), "zone, robots pick up and drop off here"},
+            {Colors.paint("(P1)", Colors.CYAN), "pickup point, robots grab items here"},
+            {Colors.paint("(D1)", Colors.CYAN), "drop-off point, robots deliver items here"},
             {Colors.paint("[C1]", Colors.GREEN), "charger"},
             {Colors.paint("####", Colors.GRAY), "rack, robots can't drive through it"},
             {" " + Colors.paint("R1", Colors.BLUE), "robot"},
@@ -96,7 +97,7 @@ public class GridRenderer{
             boolean charger = cell.getType() == Cell.CHARGER;
             String text = charger ? "[" + label + "]" : "(" + label + ")";
             if(text.length() > CELL_WIDTH){
-                text = label; //"Z10" doesn't fit in the brackets
+                text = label; //"P10" doesn't fit in the brackets
             }
             return TextUtil.pad(Colors.paint(text, charger ? Colors.GREEN : Colors.CYAN), CELL_WIDTH);
         }
