@@ -108,7 +108,7 @@ public class Menu{
         }else if(cmd.equals("k")){
             Colors.setOn(!Colors.isOn());
             if(Colors.isOn()){
-                message = "colors on (if you see weird stuff like [32m on the map, press k again to turn them off)";
+                message = "colors on";
             }else{
                 message = "colors off";
             }
