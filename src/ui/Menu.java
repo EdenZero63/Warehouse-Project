@@ -14,15 +14,14 @@ import task.Task;
 //no game rules in here, if something throws we catch it and print a normal message
 //
 //commands:
-//  Enter   next tick           n <k>   run k ticks
 //  a       add a task          i <n>   inspect robot n
 //  c       service a stranded robot
 //  r       reset (asks to confirm)     q       quit
 public class Menu{
     //how many lines of the event log to show
     public static final int EVENT_ROWS = 6;
-    //max ticks you can run with one "n" command
-    public static final int MAX_TICKS_PER_COMMAND = 100;
+    //how long each tick stays on screen when it's running by itself
+    public static final int AUTO_TICK_MILLIS = 500;
 
     //fields
     private final Simulation sim;
@@ -51,9 +50,12 @@ public class Menu{
         boolean running = true;
         while(running){
             drawScreen();
-            String line = input.readLine("  > ");
             try{
-                running = handle(line);
+                if(shouldTickByItself()){
+                    sim.nextTick();
+                }else{
+                    running = handle(input.readLine("  > "));
+                }
             }catch(InvalidCommandException e){
                 message = "Invalid command: " + e.getMessage();
             }catch(InvalidTaskException e){
@@ -69,6 +71,26 @@ public class Menu{
         System.out.println("  Bye!");
     }
 
+    //true if the robots have stuff to do and you didn't type anything,
+    //that's what makes the ticks run by themselves. when they're done it just waits for you
+    private boolean shouldTickByItself(){
+        if(!sim.hasWork()){
+            return false;
+        }
+        System.out.println("  running by itself, type a command and hit Enter anytime");
+        pause();
+        return !input.hasLineWaiting();
+    }
+
+    //holds the screen for a bit so you can actually watch them move
+    private void pause(){
+        try{
+            Thread.sleep(AUTO_TICK_MILLIS);
+        }catch(InterruptedException e){
+            //nobody interrupts this, and if they did the next tick just shows up early
+        }
+    }
+
     //does one command, returns false when you quit
     private boolean handle(String line)
             throws InvalidCommandException, InvalidTaskException, UnreachableDestinationException, RobotUnavailableException{
@@ -76,16 +98,7 @@ public class Menu{
         String cmd = parts[0].toLowerCase();
 
         if(cmd.equals("")){
-            sim.nextTick();
-        }else if(cmd.equals("n")){
-            if(parts.length < 2){
-                throw new InvalidCommandException("use n <ticks>, e.g. n 5");
-            }
-            int ticks = input.parseInt(parts[1], 1, MAX_TICKS_PER_COMMAND);
-            for(int i = 0; i < ticks; i++){
-                sim.nextTick();
-            }
-            message = "ran " + ticks + " ticks";
+            //just hitting Enter doesn't do anything, the ticks run by themselves
         }else if(cmd.equals("a")){
             addTask();
         }else if(cmd.equals("i")){
@@ -198,8 +211,6 @@ public class Menu{
     //the COMMANDS box, same height as the KEY box so they sit nicely next to each other
     private String commandsText(int width){
         String[][] rows = {
-            {"Enter", "next tick"},
-            {"n 5", "run 5 ticks (any number up to " + MAX_TICKS_PER_COMMAND + ")"},
             {"a", "add a task, like P1 to D2"},
             {"i 2", "inspect robot R2"},
             {"c", "service a stranded robot"},
