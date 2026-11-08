@@ -30,25 +30,26 @@ public class Scenario{
     }
 
     //10x10 warehouse: 2x2 racks with aisles between them
-    //P = pickup point (left side), D = drop-off point (right side), C = charger, # = rack, . = floor
-    //labels are numbered in reading order (left to right, top to bottom): P1 P2, D1 D2, C1..C4
-    //each charger sits in a dead-end alcove 2 moves from its P or D, so no route has to drive through one,
-    //and every P-to-D task fits in one battery at 5%/move (longest, P1 -> D2, needs 76%)
+    //P = pickup point, D = drop-off point, C = charger, # = rack, . = floor
+    //P1 and P2 are on the left, P3 and P4 are in the middle aisle, D1 and D2 are on the right
+    //P and D are numbered column by column (P1..P4, D1 D2), chargers in reading order (C1..C4)
+    //routes only drive onto a charger if it's the destination
+    //every P-to-D task fits in one battery at 5%/move from its closest charger (longest, like P3 -> D2, needs 86%)
     public static Scenario createDefault(){
         String[] layout = {
             "..........",
             ".##.##.##.",
-            "C##.##.##C",
+            "C##P##.##C",
             ".P......D.",
             "....##....",
             "....##....",
             ".P......D.",
-            "C##.##.##C",
+            "C##P##.##C",
             ".##.##.##.",
             "..........",
         };
         String[] ids = {"R1", "R2", "R3"};
-        int[][] starts = {{3, 2}, {6, 7}, {9, 4}};
+        int[][] starts = {{3, 3}, {6, 6}, {9, 4}};
         int[] batteries = {100, 90, 45}; //R3 starts low so charging shows up early in the demo
         return new Scenario("Default", layout, ids, starts, batteries);
     }
@@ -63,11 +64,9 @@ public class Scenario{
         int rows = layout.length;
         int cols = layout[0].length();
         Warehouse warehouse = new Warehouse(rows, cols);
-        int pickups = 0;
-        int dropoffs = 0;
         int chargers = 0;
 
-        //one Cell per character, P, D and C get numbered as we go (reading order)
+        //one Cell per character, C gets numbered as we go (reading order), P and D by column
         for(int r = 0; r < rows; r++){
             if(layout[r].length() != cols){
                 throw new IllegalArgumentException("layout row " + r + " should be " + cols + " characters long");
@@ -75,12 +74,8 @@ public class Scenario{
             for(int c = 0; c < cols; c++){
                 char type = layout[r].charAt(c);
                 String label = null;
-                if(type == Cell.PICKUP){
-                    pickups++;
-                    label = "P" + pickups;
-                }else if(type == Cell.DROPOFF){
-                    dropoffs++;
-                    label = "D" + dropoffs;
+                if(type == Cell.PICKUP || type == Cell.DROPOFF){
+                    label = type + "" + numberByColumn(type, r, c);
                 }else if(type == Cell.CHARGER){
                     chargers++;
                     label = "C" + chargers;
@@ -94,6 +89,19 @@ public class Scenario{
             }
         }
         return warehouse;
+    }
+
+    //which number this P or D gets: left column first, top to bottom inside a column
+    private int numberByColumn(char type, int row, int col){
+        int number = 0;
+        for(int c = 0; c <= col; c++){
+            for(int r = 0; r < layout.length; r++){
+                if(layout[r].charAt(c) == type && (c < col || r <= row)){
+                    number++;
+                }
+            }
+        }
+        return number;
     }
 
     //fresh robots at their start positions
