@@ -3,7 +3,9 @@ package charging;
 
 import java.util.ArrayList;
 
+import robot.ChargingState;
 import robot.Robot;
+import robot.WaitingForChargerState;
 import sim.Simulation;
 import warehouse.Position;
 
@@ -61,9 +63,30 @@ public class ChargingStation {
 
         if (isFree()) {
             occupant = robot;
+            robot.setState(new ChargingState());
         } else {
             waiting.add(robot);
+            robot.setState(new WaitingForChargerState());
         }
+    }
+
+    //next robot in line takes the charger
+    //anyone still standing on it trades cells with them so two robots never share a cell
+    private void admitNext(Simulation sim) {
+        Robot next = waiting.remove(0);
+        Position waitingSpot = next.getPosition();
+
+        for (int i = 0; i < sim.getRobots().size(); i++) {
+            Robot other = sim.getRobots().get(i);
+            if (other != next && position.equals(other.getPosition())) {
+                other.placeAt(waitingSpot);
+            }
+        }
+
+        next.placeAt(position);
+        next.setState(new ChargingState());
+        occupant = next;
+        sim.getLog().add(sim.getTick(), next.getId() + " charging at " + id);
     }
 
     //once per tick: charge the occupant, release it at MAX_BATTERY
@@ -72,7 +95,7 @@ public class ChargingStation {
         if (occupant == null) {
             // If the charger is free, admit the next robot in line
             if (!waiting.isEmpty()) {
-                occupant = waiting.remove(0);
+                admitNext(sim);
             } else {
                 return;
             }
@@ -98,10 +121,11 @@ public class ChargingStation {
 
             // Resume the robot after charging
             chargedRobot.resumeAfterCharging(sim);
+            sim.getLog().add(sim.getTick(), chargedRobot.getId() + " done charging at " + batteryLevel + "%");
 
             // Let the next robot in the queue take the charger
             if (!waiting.isEmpty()) {
-                occupant = waiting.remove(0);
+                admitNext(sim);
             }
         }
     }
