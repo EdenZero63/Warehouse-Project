@@ -1,10 +1,14 @@
 package task;
 
 import charging.ChargingPolicy;
+import charging.ChargingStation;
 import exception.RobotUnavailableException;
 import exception.UnreachableDestinationException;
+import robot.ChargingState;
 import robot.Robot;
+import robot.RobotState;
 import robot.ToChargerState;
+import robot.WaitingForChargerState;
 import sim.Simulation;
 
 //owner: Role 6 (tasks and dispatch): James Whiting
@@ -25,6 +29,30 @@ public class Dispatcher{
         }
         catch (RobotUnavailableException e) {
             // No idle robot can take it right now, so the task stays PENDING (DESIGN.md section 6)
+            sendRobotTowardPickup(task, sim);
+        }
+    }
+
+    // A full robot on the far side of the map can still fail Rule A, and nothing would ever change that.
+    // If nobody is already charging, the lowest-ID idle robot goes to the charger closest to the pickup,
+    // and from there a full battery always passes Rule A.
+    private void sendRobotTowardPickup(Task task, Simulation sim){
+        ChargingStation charger = sim.getChargingPolicy().findNearestCharger(task.getPickup(), sim);
+        if (charger == null) { return; }
+
+        for (int i = 0; i < sim.getRobots().size(); i++) {
+            RobotState state = sim.getRobots().get(i).getState();
+            if (state instanceof ToChargerState || state instanceof WaitingForChargerState || state instanceof ChargingState) { return; }
+        }
+
+        for (int i = 0; i < sim.getRobots().size(); i++) {
+            Robot robot = sim.getRobots().get(i);
+            boolean alreadyReady = robot.getPosition().equals(charger.getPosition()) && robot.getBattery().isFull();
+            if (robot.isIdle() && !alreadyReady) {
+                robot.setState(new ToChargerState(charger));
+                sim.getLog().add(sim.getTick(), robot.getId() + " moving to " + charger.getId() + " for task #" + task.getId());
+                return;
+            }
         }
     }
 

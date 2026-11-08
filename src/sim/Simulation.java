@@ -85,6 +85,22 @@ public class Simulation {
         }
     }
 
+    //true while something can still happen without the user, the menu keeps ticking until this is false
+    public boolean hasWork() {
+        boolean anyRobotWorking = false;
+        for (int i = 0; i < robots.size(); i++) {
+            Robot r = robots.get(i);
+            if (r.getState() instanceof StrandedState) {
+                continue;
+            }
+            anyRobotWorking = true;
+            if (!r.isIdle()) {
+                return true;
+            }
+        }
+        return anyRobotWorking && taskManager.getOldestPending() != null;
+    }
+
     //find a robot by ID such as "R2", throws if missing
     public Robot getRobot(String id) throws RobotUnavailableException {
         if (id == null) {

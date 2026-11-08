@@ -1,5 +1,6 @@
 package ui;
 
+import java.io.IOException;
 import java.util.Scanner;
 
 import exception.InvalidCommandException;
@@ -23,6 +24,15 @@ public class InputHelper{
             return "q";
         }
         return scanner.nextLine().trim();
+    }
+
+    //true if you already typed something, lets the menu check without getting stuck waiting for you
+    public boolean hasLineWaiting(){
+        try{
+            return System.in.available() > 0;
+        }catch(IOException e){
+            return false;
+        }
     }
 
     //reads a number between min and max, throws if you type something else or it's out of range

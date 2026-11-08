@@ -1,6 +1,10 @@
 package robot;
 
+import java.util.ArrayList;
+
 import sim.Simulation;
+import task.Task;
+import warehouse.Position;
 
 //owner: Role 3 (robot behavior)
 //carrying an item to the task's drop-off point
@@ -9,12 +13,13 @@ public class ToDropoffState extends RobotState{
     //check battery, step once, deliver on arrival
     @Override
     public void act(Robot robot, Simulation sim){
-        //TODO (Role 3):
-        //  1. Rule B: if it must charge, switch to ToChargerState but KEEP the item and the task
-        //  2. otherwise robot.stepAlongPath(sim)
-        //  3. at the drop-off: setCarrying(false), task.markCompleted(), setCurrentTask(null),
-        //     switch to IdleState, log "R1 delivered to D2"
-        throw new UnsupportedOperationException("TODO (Role 3): ToDropoffState.act");
+        Task task = robot.getCurrentTask();
+        if(driveTo(robot, task.getDropoff(), sim)){
+            robot.setCarrying(false);
+            task.markCompleted(); //this also clears the task and switches the robot to IdleState
+            robot.setPath(new ArrayList<Position>());
+            sim.getLog().add(sim.getTick(), robot.getId() + " delivered to " + task.getDropoffLabel());
+        }
     }
 
     @Override

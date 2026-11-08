@@ -47,12 +47,12 @@ java -cp out app.Main
 | `R1*` | Robot carrying an item |
 | `R1!` | Robot stranded (battery empty) |
 
-## Controls (planned)
+## Controls
+
+Ticks run automatically while robots have work.
 
 | Key | Action |
 |---|---|
-| Enter | Next tick |
-| `n <k>` | Run k ticks |
 | `a` | Add a task (pickup and drop-off) |
 | `i <n>` | Inspect robot n |
 | `c` | Service a stranded robot |

@@ -1,6 +1,10 @@
 package robot;
 
+import java.util.ArrayList;
+
 import sim.Simulation;
+import task.Task;
+import warehouse.Position;
 
 //owner: Role 3 (robot behavior)
 //driving to the task's pickup point
@@ -9,12 +13,13 @@ public class ToPickupState extends RobotState{
     //check battery, step once, pick up on arrival
     @Override
     public void act(Robot robot, Simulation sim){
-        //TODO (Role 3):
-        //  1. Rule B: if sim.getChargingPolicy().mustGoCharge(...), switch to ToChargerState
-        //  2. otherwise robot.stepAlongPath(sim)
-        //  3. at the pickup: setCarrying(true), task.markPickedUp(), plan the path to the drop-off,
-        //     switch to ToDropoffState, log "R1 picked up at P1"
-        throw new UnsupportedOperationException("TODO (Role 3): ToPickupState.act");
+        Task task = robot.getCurrentTask();
+        if(driveTo(robot, task.getPickup(), sim)){
+            robot.setCarrying(true);
+            task.markPickedUp(); //this also switches the robot to ToDropoffState
+            robot.setPath(new ArrayList<Position>());
+            sim.getLog().add(sim.getTick(), robot.getId() + " picked up at " + task.getPickupLabel());
+        }
     }
 
     @Override
