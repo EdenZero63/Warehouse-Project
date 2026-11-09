@@ -7,9 +7,9 @@ simulation runs one tick at a time and redraws the map after each tick, so you c
 the robots move. Moving uses battery, and robots drive themselves to a charging station
 before they run out.
 
-> **Status: Week 1 skeleton.** Every class exists and compiles, but most methods are still
-> `TODO (Role N)` and throw `UnsupportedOperationException` if called. Running the app
-> currently prints one line and exits.
+## Demo video
+
+Watch it run: https://youtu.be/-1Mhw2NFFrQ
 
 ## Requirements
 
@@ -38,18 +38,19 @@ java -cp out app.Main
 
 | Symbol | Meaning |
 |---|---|
-| `.` | Floor |
-| `#` | Obstacle |
-| `P1`, `P2` | Pickup points |
-| `D1`, `D2` | Drop-off points |
-| `C1`, `C2` | Charging stations |
+| Blank | Floor |
+| `####` | Rack (obstacle) |
+| `(P1)` to `(P4)` | Pickup points |
+| `(D1)`, `(D2)` | Drop-off points |
+| `[C1]` to `[C4]` | Charging stations |
 | `R1` | Robot |
 | `R1*` | Robot carrying an item |
 | `R1!` | Robot stranded (battery empty) |
+| `..` | Where a robot is going next |
 
 ## Controls
 
-Ticks run automatically while robots have work.
+Ticks run automatically while robots have work. To see a delivery, press `a`, then enter `P1` and `D1`.
 
 | Key | Action |
 |---|---|
@@ -57,6 +58,7 @@ Ticks run automatically while robots have work.
 | `i <n>` | Inspect robot n |
 | `c` | Service a stranded robot |
 | `r` | Reset the scenario (asks to confirm) |
+| `k` | Turn colors on or off |
 | `q` | Quit |
 
 ## Project structure
@@ -70,9 +72,9 @@ src/
   charging/     Battery, ChargingStation, ChargingPolicy (all battery rules)
   navigation/   PathFinder interface, BfsPathFinder
   task/         Task, TaskManager, Dispatcher
-  ui/           Menu, InputHelper, GridRenderer, StatusPanel
+  ui/           Menu, InputHelper, GridRenderer, StatusPanel, TextUtil, Colors
   exception/    Custom checked exceptions
-docs/           UML diagram and design document
+docs/           UML diagram, design document and test evidence
 ```
 
 ## Team roles
@@ -81,14 +83,14 @@ Every file starts with an `//owner: Role N` comment, and each TODO names its rol
 
 | Role | Area | Packages | Member |
 |---|---|---|---|
-| 1 | Integration lead | `app`, `sim` | |
-| 2 | Warehouse map | `warehouse` | |
-| 3 | Robot behavior | `robot` | |
-| 4 | Charging | `charging` | |
-| 5 | Navigation | `navigation` | |
-| 6 | Tasks and dispatch | `task` | |
-| 7 | Console UI | `ui` | |
-| 8 | QA and errors | `exception` | |
+| 1 | Integration lead | `app`, `sim` | [acnguyen1259](https://github.com/acnguyen1259), [darkgrapeman](https://github.com/darkgrapeman) |
+| 2 | Warehouse map | `warehouse` | [qeremeren](https://github.com/qeremeren) |
+| 3 | Robot behavior | `robot` | [droobix](https://github.com/droobix) |
+| 4 | Charging | `charging` | [darkgrapeman](https://github.com/darkgrapeman) |
+| 5 | Navigation | `navigation` | [EdenZero63](https://github.com/EdenZero63) |
+| 6 | Tasks and dispatch | `task` | [James-saddleback](https://github.com/James-saddleback) |
+| 7 | Console UI | `ui` | [PowerisTsutsun](https://github.com/PowerisTsutsun) |
+| 8 | QA and errors | `exception` | [PondBits](https://github.com/PondBits) |
 
 Everyone presents their part in the demo.
 
