@@ -5,6 +5,3 @@ out-test/
 *.iml
 .vscode/
 .DS_Store
-
-# local-only tests, not committed
-test/
