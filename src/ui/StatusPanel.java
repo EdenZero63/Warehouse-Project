@@ -87,6 +87,12 @@ public class StatusPanel{
             if(cs.getOccupant() != null){
                 Robot on = cs.getOccupant();
                 status = Colors.paint(on.getId(), Colors.robotColor(on)) + " charging";
+            }else{
+                //robots just stay on the charger when they're done, so say so instead of looking empty
+                Robot parked = parkedOn(sim, cs);
+                if(parked != null){
+                    status = Colors.paint(parked.getId(), Colors.robotColor(parked)) + " parked";
+                }
             }
             if(cs.getQueueSize() > 0){
                 status = status + ", " + cs.getQueueSize() + " waiting";
@@ -97,6 +103,18 @@ public class StatusPanel{
         sb.append(TextUtil.boxed(rates, PANEL_WIDTH)).append("\n");
         sb.append(TextUtil.rule('-', PANEL_WIDTH)).append("\n");
         return sb.toString();
+    }
+
+    //the idle robot sitting on this charger, null if there isn't one
+    private Robot parkedOn(Simulation sim, ChargingStation cs){
+        ArrayList<Robot> robots = sim.getRobots();
+        for(int i = 0; i < robots.size(); i++){
+            Robot r = robots.get(i);
+            if(r.isIdle() && cs.getPosition().equals(r.getPosition())){
+                return r;
+            }
+        }
+        return null;
     }
 
     //last `count` events in a box `width` wide, the newest one has >> in front
