@@ -55,8 +55,7 @@ public class GridRenderer{
             {Colors.paint("(D1)", Colors.CYAN), "drop-off point, robots deliver items here"},
             {Colors.paint("[C1]", Colors.GREEN), "charger"},
             {Colors.paint("####", Colors.GRAY), "rack, robots can't drive through it"},
-            {" " + Colors.paint("R1", Colors.BLUE), "robot"},
-            {" " + Colors.paint("R1*", Colors.BLUE), "robot carrying a load"},
+            {" " + Colors.paint("R1*", Colors.BLUE), "robot, the * means it's carrying a load"},
             {" " + Colors.paint("R1!", Colors.RED), "robot stranded, out of battery"},
             {" " + Colors.paint("..", Colors.BLUE), "where a robot is going next"},
         };

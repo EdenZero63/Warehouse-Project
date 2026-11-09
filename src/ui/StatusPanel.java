@@ -10,7 +10,7 @@ import task.Task;
 import warehouse.Position;
 
 
-//everything around the map: header, robots, tasks, chargers, recent events
+//everything around the map: header, robots, tasks, chargers
 public class StatusPanel{
     //how wide the panel next to the map is
     public static final int PANEL_WIDTH = 50;
@@ -43,10 +43,10 @@ public class StatusPanel{
         ArrayList<Robot> robots = sim.getRobots();
         for(int i = 0; i < robots.size(); i++){
             Robot r = robots.get(i);
-            int level = r.getBattery().getLevel();
+            int level = (int) r.getBattery().getLevel(); //rounds down, only for the bar and its color
             String top = TextUtil.pad(Colors.paint(GridRenderer.robotSymbol(r), Colors.robotColor(r)), 5)
                 + TextUtil.pad(r.getPosition().toString(), 8)
-                + Colors.paint(batteryBar(level) + " " + level + "%", Colors.batteryColor(level));
+                + Colors.paint(batteryBar(level) + " " + r.getBattery().getPercentText(), Colors.batteryColor(level));
             String bottom = "     " + TextUtil.pad(r.getState().getLabel(), 16) + destination(sim, r);
             sb.append(TextUtil.boxed(top, PANEL_WIDTH)).append("\n");
             sb.append(TextUtil.boxed(bottom, PANEL_WIDTH)).append("\n");
@@ -87,6 +87,12 @@ public class StatusPanel{
             if(cs.getOccupant() != null){
                 Robot on = cs.getOccupant();
                 status = Colors.paint(on.getId(), Colors.robotColor(on)) + " charging";
+            }else{
+                //robots just stay on the charger when they're done, so say so instead of looking empty
+                Robot parked = parkedOn(sim, cs);
+                if(parked != null){
+                    status = Colors.paint(parked.getId(), Colors.robotColor(parked)) + " parked";
+                }
             }
             if(cs.getQueueSize() > 0){
                 status = status + ", " + cs.getQueueSize() + " waiting";
@@ -99,23 +105,16 @@ public class StatusPanel{
         return sb.toString();
     }
 
-    //last `count` events in a box `width` wide, the newest one has >> in front
-    //always the same height so the screen doesn't jump around
-    public String renderEvents(Simulation sim, int count, int width){
-        StringBuilder sb = new StringBuilder();
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        sb.append(TextUtil.boxed("EVENT LOG", width)).append("\n");
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        ArrayList<String> recent = sim.getLog().getRecent(count);
-        for(int i = 0; i < count; i++){
-            String line = "";
-            if(i < recent.size()){
-                line = (i == recent.size() - 1 ? ">> " : "   ") + recent.get(i);
+    //the idle robot sitting on this charger, null if there isn't one
+    private Robot parkedOn(Simulation sim, ChargingStation cs){
+        ArrayList<Robot> robots = sim.getRobots();
+        for(int i = 0; i < robots.size(); i++){
+            Robot r = robots.get(i);
+            if(r.isIdle() && cs.getPosition().equals(r.getPosition())){
+                return r;
             }
-            sb.append(TextUtil.boxed(line, width)).append("\n");
         }
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        return sb.toString();
+        return null;
     }
 
     //battery bar like "[#########-]", 10 blocks total

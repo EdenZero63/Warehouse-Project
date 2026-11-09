@@ -34,7 +34,7 @@ public class Scenario{
     //P1 and P2 are on the left, P3 and P4 are in the middle aisle, D1 and D2 are on the right
     //P and D are numbered column by column (P1..P4, D1 D2), chargers in reading order (C1..C4)
     //routes only drive onto a charger if it's the destination
-    //every P-to-D task fits in one battery at 5%/move from its closest charger (longest, like P3 -> D2, needs 86%)
+    //every P-to-D task fits in one battery at 2.5%/move from its closest charger
     public static Scenario createDefault(){
         String[] layout = {
             "..........",

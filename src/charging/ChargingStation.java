@@ -104,7 +104,7 @@ public class ChargingStation {
         // Charge the current occupant
         occupant.getBattery().charge(ChargingPolicy.CHARGE_RATE);
 
-        int batteryLevel = occupant.getBattery().getLevel();
+        double batteryLevel = occupant.getBattery().getLevel();
 
         // Release at full battery, or RELEASE_LEVEL if someone is waiting
         boolean shouldRelease;
@@ -121,7 +121,7 @@ public class ChargingStation {
 
             // Resume the robot after charging
             chargedRobot.resumeAfterCharging(sim);
-            sim.getLog().add(sim.getTick(), chargedRobot.getId() + " done charging at " + batteryLevel + "%");
+            sim.getLog().add(sim.getTick(), chargedRobot.getId() + " done charging at " + chargedRobot.getBattery().getPercentText());
 
             // Let the next robot in the queue take the charger
             if (!waiting.isEmpty()) {

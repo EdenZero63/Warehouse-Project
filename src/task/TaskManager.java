@@ -29,7 +29,7 @@ public class TaskManager{
         try {
             Position pickup = sim.getWarehouse().findLabel(pickupLabel);
             Position dropoff = sim.getWarehouse().findLabel(dropoffLabel);
-            if (sim.getWarehouse().getCell(pickup).getType() != Cell.PICKUP) { throw new InvalidTaskException(pickupLabel + " isn't a pickup point, use P1, P2..."); }
+            checkPickup(pickupLabel, sim);
             if (sim.getWarehouse().getCell(dropoff).getType() != Cell.DROPOFF) { throw new InvalidTaskException(dropoffLabel + " isn't a drop-off point, use D1, D2..."); }
             
             if (pickup.equals(dropoff)) { throw new InvalidPositionException("Pickup and dropoff are the same position"); }
@@ -44,6 +44,17 @@ public class TaskManager{
             this.nextId++;
             this.tasks.add(task);
             return task;
+        }
+        catch (InvalidPositionException e) {
+            throw new InvalidTaskException("Invalid Position: " + e.getMessage());
+        }
+    }
+
+    //throws unless the label is a real pickup point, the menu calls this before it asks for the drop-off
+    public void checkPickup(String label, Simulation sim) throws InvalidTaskException{
+        try {
+            Position pickup = sim.getWarehouse().findLabel(label);
+            if (sim.getWarehouse().getCell(pickup).getType() != Cell.PICKUP) { throw new InvalidTaskException(label + " isn't a pickup point, use P1, P2..."); }
         }
         catch (InvalidPositionException e) {
             throw new InvalidTaskException("Invalid Position: " + e.getMessage());

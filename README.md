@@ -7,9 +7,9 @@ simulation runs one tick at a time and redraws the map after each tick, so you c
 the robots move. Moving uses battery, and robots drive themselves to a charging station
 before they run out.
 
-> **Status: Week 1 skeleton.** Every class exists and compiles, but most methods are still
-> `TODO (Role N)` and throw `UnsupportedOperationException` if called. Running the app
-> currently prints one line and exits.
+## Demo video
+
+Watch it run: https://youtu.be/dKNGViAi8j4
 
 ## Requirements
 
@@ -34,29 +34,46 @@ java -cp out app.Main
 
 `out/` is gitignored. Never commit compiled `.class` files.
 
+## Running the tests
+
+Tests are in `test/` and use a small `Check` helper instead of JUnit. `TestRunner` prints the totals and exits with code 1 if anything fails.
+
+**Windows (PowerShell)**
+```powershell
+javac -d out-test (Get-ChildItem -Path src,test -Recurse -Filter *.java).FullName
+java -cp out-test TestRunner
+```
+
+**macOS / Linux**
+```bash
+javac -d out-test $(find src test -name "*.java")
+java -cp out-test TestRunner
+```
+
 ## Map legend
 
 | Symbol | Meaning |
 |---|---|
-| `.` | Floor |
-| `#` | Obstacle |
-| `P1`, `P2` | Pickup points |
-| `D1`, `D2` | Drop-off points |
-| `C1`, `C2` | Charging stations |
+| Blank | Floor |
+| `####` | Rack (obstacle) |
+| `(P1)` to `(P4)` | Pickup points |
+| `(D1)`, `(D2)` | Drop-off points |
+| `[C1]` to `[C4]` | Charging stations |
 | `R1` | Robot |
 | `R1*` | Robot carrying an item |
 | `R1!` | Robot stranded (battery empty) |
+| `..` | Where a robot is going next |
 
 ## Controls
 
-Ticks run automatically while robots have work.
+Ticks run automatically while robots have work. To see a delivery, press `a`, then enter `P1` and `D1`.
 
 | Key | Action |
 |---|---|
 | `a` | Add a task (pickup and drop-off) |
-| `i <n>` | Inspect robot n |
-| `c` | Service a stranded robot |
+| `n`, `n 5` | Advance one tick, or a chosen number of ticks |
 | `r` | Reset the scenario (asks to confirm) |
+| `k` | Turn colors on or off |
 | `q` | Quit |
 
 ## Project structure
@@ -70,8 +87,9 @@ src/
   charging/     Battery, ChargingStation, ChargingPolicy (all battery rules)
   navigation/   PathFinder interface, BfsPathFinder
   task/         Task, TaskManager, Dispatcher
-  ui/           Menu, InputHelper, GridRenderer, StatusPanel
+  ui/           Menu, InputHelper, GridRenderer, StatusPanel, TextUtil, Colors
   exception/    Custom checked exceptions
+test/           TestRunner and one test class per package
 docs/           UML diagram and design document
 ```
 
@@ -81,14 +99,14 @@ Every file starts with an `//owner: Role N` comment, and each TODO names its rol
 
 | Role | Area | Packages | Member |
 |---|---|---|---|
-| 1 | Integration lead | `app`, `sim` | |
-| 2 | Warehouse map | `warehouse` | |
-| 3 | Robot behavior | `robot` | |
-| 4 | Charging | `charging` | |
-| 5 | Navigation | `navigation` | |
-| 6 | Tasks and dispatch | `task` | |
-| 7 | Console UI | `ui` | |
-| 8 | QA and errors | `exception` | |
+| 1 | Integration lead | `app`, `sim` | [Alexander Nguyen](https://github.com/acnguyen1259), [Sierra Hunt](https://github.com/darkgrapeman) |
+| 2 | Warehouse map | `warehouse` | [Kerem Eren](https://github.com/qeremeren) |
+| 3 | Robot behavior | `robot` | [Andrew Goodman](https://github.com/droobix) |
+| 4 | Charging | `charging` | [Sierra Hunt](https://github.com/darkgrapeman) |
+| 5 | Navigation | `navigation` | [Marcelo Soria](https://github.com/EdenZero63) |
+| 6 | Tasks and dispatch | `task` | [James Whiting](https://github.com/James-saddleback) |
+| 7 | Console UI | `ui` | [Valance Fernando](https://github.com/PowerisTsutsun) |
+| 8 | QA and errors | `exception` | [Erik Hernandez](https://github.com/PondBits) |
 
 Everyone presents their part in the demo.
 
