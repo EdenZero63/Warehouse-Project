@@ -15,6 +15,10 @@ public class Colors{
     public static final String MAGENTA = "\u001B[95m";
     public static final String CYAN = "\u001B[96m";
     public static final String GRAY = "\u001B[90m";
+    //these ones move the cursor instead of coloring, so a new tick can draw over the old one
+    public static final String CURSOR_HOME = "\u001B[H";
+    public static final String CLEAR_LINE_END = "\u001B[K";
+    public static final String CLEAR_BELOW = "\u001B[J";
 
     //one color per robot: R1 blue, R2 magenta, R3 yellow, then it starts over
     private static final String[] ROBOT_COLORS = {BLUE, MAGENTA, YELLOW};

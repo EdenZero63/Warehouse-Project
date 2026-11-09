@@ -34,6 +34,22 @@ java -cp out app.Main
 
 `out/` is gitignored. Never commit compiled `.class` files.
 
+## Running the tests
+
+Tests are in `test/` and use a small `Check` helper instead of JUnit. `TestRunner` prints the totals and exits with code 1 if anything fails.
+
+**Windows (PowerShell)**
+```powershell
+javac -d out-test (Get-ChildItem -Path src,test -Recurse -Filter *.java).FullName
+java -cp out-test TestRunner
+```
+
+**macOS / Linux**
+```bash
+javac -d out-test $(find src test -name "*.java")
+java -cp out-test TestRunner
+```
+
 ## Map legend
 
 | Symbol | Meaning |
@@ -55,8 +71,7 @@ Ticks run automatically while robots have work. To see a delivery, press `a`, th
 | Key | Action |
 |---|---|
 | `a` | Add a task (pickup and drop-off) |
-| `i <n>` | Inspect robot n |
-| `c` | Service a stranded robot |
+| `n`, `n 5` | Advance one tick, or a chosen number of ticks |
 | `r` | Reset the scenario (asks to confirm) |
 | `k` | Turn colors on or off |
 | `q` | Quit |
@@ -74,7 +89,8 @@ src/
   task/         Task, TaskManager, Dispatcher
   ui/           Menu, InputHelper, GridRenderer, StatusPanel, TextUtil, Colors
   exception/    Custom checked exceptions
-docs/           UML diagram, design document and test evidence
+test/           TestRunner and one test class per package
+docs/           UML diagram and design document
 ```
 
 ## Team roles
@@ -83,14 +99,14 @@ Every file starts with an `//owner: Role N` comment, and each TODO names its rol
 
 | Role | Area | Packages | Member |
 |---|---|---|---|
-| 1 | Integration lead | `app`, `sim` | [acnguyen1259](https://github.com/acnguyen1259), [darkgrapeman](https://github.com/darkgrapeman) |
-| 2 | Warehouse map | `warehouse` | [qeremeren](https://github.com/qeremeren) |
-| 3 | Robot behavior | `robot` | [droobix](https://github.com/droobix) |
-| 4 | Charging | `charging` | [darkgrapeman](https://github.com/darkgrapeman) |
-| 5 | Navigation | `navigation` | [EdenZero63](https://github.com/EdenZero63) |
-| 6 | Tasks and dispatch | `task` | [James-saddleback](https://github.com/James-saddleback) |
-| 7 | Console UI | `ui` | [PowerisTsutsun](https://github.com/PowerisTsutsun) |
-| 8 | QA and errors | `exception` | [PondBits](https://github.com/PondBits) |
+| 1 | Integration lead | `app`, `sim` | [Alexander Nguyen](https://github.com/acnguyen1259), [Sierra Hunt](https://github.com/darkgrapeman) |
+| 2 | Warehouse map | `warehouse` | [Kerem Eren](https://github.com/qeremeren) |
+| 3 | Robot behavior | `robot` | [Andrew Goodman](https://github.com/droobix) |
+| 4 | Charging | `charging` | [Sierra Hunt](https://github.com/darkgrapeman) |
+| 5 | Navigation | `navigation` | [Marcelo Soria](https://github.com/EdenZero63) |
+| 6 | Tasks and dispatch | `task` | [James Whiting](https://github.com/James-saddleback) |
+| 7 | Console UI | `ui` | [Valance Fernando](https://github.com/PowerisTsutsun) |
+| 8 | QA and errors | `exception` | [Erik Hernandez](https://github.com/PondBits) |
 
 Everyone presents their part in the demo.
 

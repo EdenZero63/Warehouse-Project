@@ -6,7 +6,7 @@ package charging;
 public class Battery {
 
     //fields
-    private int level;
+    private double level;
 
     //constructor
     public Battery(int startLevel) {
@@ -16,12 +16,12 @@ public class Battery {
     }
 
     //getters
-    public int getLevel() {
+    public double getLevel() {
         return level;
     }
 
     //use up power, never below 0
-    public void consume(int amount) {
+    public void consume(double amount) {
         if (amount < 0) {
             throw new IllegalArgumentException(
                     "Amount cannot be negative.");
@@ -31,7 +31,7 @@ public class Battery {
     }
 
     //add power, never above MAX_BATTERY
-    public void charge(int amount) {
+    public void charge(double amount) {
         if (amount < 0) {
             throw new IllegalArgumentException(
                     "Amount cannot be negative.");
@@ -50,8 +50,16 @@ public class Battery {
         return level == ChargingPolicy.MAX_BATTERY;
     }
 
-    //battery consumption: 1 tile moved = 5%
+    //the level as text, whole numbers skip the .0 so it reads 55% or 97.5%
+    public String getPercentText() {
+        if (level == (int) level) {
+            return (int) level + "%";
+        }
+        return level + "%";
+    }
+
+    //battery consumption: 1 tile moved costs MOVE_COST
     public void consumeTileMovement() {
-        consume(5);
+        consume(ChargingPolicy.MOVE_COST);
     }
 }

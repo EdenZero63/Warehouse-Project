@@ -232,6 +232,6 @@ public class Robot{
     //short summary, e.g. "R1 (1,1) 91% TO_PICKUP"
     @Override
     public String toString(){
-        return id + " " + position + " " + battery.getLevel() + "% " + state.getLabel();
+        return id + " " + position + " " + battery.getPercentText() + " " + state.getLabel();
     }
 }

@@ -115,7 +115,7 @@ public class Simulation {
         throw new RobotUnavailableException("No robot found with ID: " + id);
     }
 
-    //menu "c" command (Rule D): recharge a STRANDED robot by hand so it can carry on
+    //Rule D: recharge a STRANDED robot by hand so it can carry on, there's no menu command for this right now
     //throws if the ID is unknown or the robot isn't stranded
     public void serviceRobot(String id) throws RobotUnavailableException {
         // 1. Locate the robot

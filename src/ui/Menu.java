@@ -4,9 +4,7 @@ import java.util.Scanner;
 
 import exception.InvalidCommandException;
 import exception.InvalidTaskException;
-import exception.RobotUnavailableException;
 import exception.UnreachableDestinationException;
-import robot.Robot;
 import sim.Simulation;
 import task.Task;
 
@@ -14,12 +12,11 @@ import task.Task;
 //no game rules in here, if something throws we catch it and print a normal message
 //
 //commands:
-//  a       add a task          i <n>   inspect robot n
-//  c       service a stranded robot
+//  a       add a task          n [k]   advance 1 tick, or k ticks
 //  r       reset (asks to confirm)     q       quit
 public class Menu{
-    //how many lines of the event log to show
-    public static final int EVENT_ROWS = 6;
+    //most ticks one n command can run
+    public static final int MAX_STEPS = 100;
     //how long each tick stays on screen when it's running by itself
     public static final int AUTO_TICK_MILLIS = 500;
 
@@ -62,8 +59,6 @@ public class Menu{
                 message = "Can't add that task: " + e.getMessage();
             }catch(UnreachableDestinationException e){
                 message = "Can't get there: " + e.getMessage();
-            }catch(RobotUnavailableException e){
-                message = "Robot problem: " + e.getMessage();
             }catch(UnsupportedOperationException e){
                 message = notBuiltYet(e);
             }
@@ -93,7 +88,7 @@ public class Menu{
 
     //does one command, returns false when you quit
     private boolean handle(String line)
-            throws InvalidCommandException, InvalidTaskException, UnreachableDestinationException, RobotUnavailableException{
+            throws InvalidCommandException, InvalidTaskException, UnreachableDestinationException{
         String[] parts = line.split("\\s+");
         String cmd = parts[0].toLowerCase();
 
@@ -101,15 +96,15 @@ public class Menu{
             //just hitting Enter doesn't do anything, the ticks run by themselves
         }else if(cmd.equals("a")){
             addTask();
-        }else if(cmd.equals("i")){
-            if(parts.length < 2){
-                throw new InvalidCommandException("use i <robot>, e.g. i 2");
+        }else if(cmd.equals("n")){
+            int ticks = 1;
+            if(parts.length > 1){
+                ticks = input.parseInt(parts[1], 1, MAX_STEPS);
             }
-            inspect(parts[1]);
-        }else if(cmd.equals("c")){
-            String id = robotId(input.readLine("  robot to service (e.g. R2): "));
-            sim.serviceRobot(id);
-            message = id + " serviced";
+            for(int i = 0; i < ticks; i++){
+                sim.nextTick();
+            }
+            message = "advanced " + ticks + (ticks == 1 ? " tick" : " ticks");
         }else if(cmd.equals("r")){
             String answer = input.readLine("  reset everything back to tick 0? (y/n): ");
             if(answer.equalsIgnoreCase("y")){
@@ -136,47 +131,37 @@ public class Menu{
     //asks for pickup and drop-off and lets TaskManager check if they're ok
     private void addTask() throws InvalidTaskException, UnreachableDestinationException{
         String pickup = input.readLine("  pickup point (e.g. P1): ").toUpperCase();
+        sim.getTaskManager().checkPickup(pickup, sim); //no point asking for the drop-off if this one's wrong
         String dropoff = input.readLine("  drop-off point (e.g. D2): ").toUpperCase();
         Task task = sim.getTaskManager().createTask(pickup, dropoff, sim);
         message = "added task " + task;
     }
 
-    //short summary of one robot
-    private void inspect(String text) throws RobotUnavailableException{
-        Robot r = sim.getRobot(robotId(text));
-        String task = r.getCurrentTask() == null ? "none" : r.getCurrentTask().toString();
-        message = r + " | task " + task + " | " + r.getPath().size() + " steps left | blocked " + r.getWaitTicks() + " ticks";
-    }
-
-    //so "2", "r2" and "R2" all work
-    private String robotId(String text){
-        String id = text.trim().toUpperCase();
-        if(!id.startsWith("R")){
-            id = "R" + id;
-        }
-        return id;
-    }
-
     //---------------- drawing ----------------
 
-    //draws everything: banner, map + panel, events, legend, commands, message
+    //draws everything: banner, map + panel, legend, commands, message
     private void drawScreen(){
         String body = TextUtil.sideBySide(mapText(), panelText(), 3);
         int width = TextUtil.widestLine(body);
 
-        StringBuilder sb = new StringBuilder("\n\n");
+        //with ansi on we start back at the top and draw over the last screen so it doesn't scroll
+        StringBuilder sb = new StringBuilder(Colors.isOn() ? Colors.CURSOR_HOME : "\n\n");
         sb.append(indent(banner(width)));
-        sb.append(indent(body)).append("\n");
-        sb.append(indent(eventsText(width))).append("\n");
+        sb.append(indent(body));
         //key on the left, commands on the right, splitting the width between them
         int keyWidth = (width - 3) / 2;
         int commandWidth = width - 3 - keyWidth;
         sb.append(indent(TextUtil.sideBySide(gridRenderer.renderLegend(keyWidth), commandsText(commandWidth), 3)));
         if(!message.equals("")){
-            sb.append("\n  ").append(message).append("\n");
+            sb.append("  ").append(message).append("\n");
             message = "";
         }
-        System.out.print(sb);
+        String screen = sb.toString();
+        if(Colors.isOn()){
+            //wipe whatever was left over from a longer line or an old message
+            screen = screen.replace("\n", Colors.CLEAR_LINE_END + "\n") + Colors.CLEAR_BELOW;
+        }
+        System.out.print(screen);
     }
 
     //each part gets drawn on its own so if one isn't done yet the rest still shows up
@@ -200,20 +185,11 @@ public class Menu{
         }
     }
 
-    private String eventsText(int width){
-        try{
-            return statusPanel.renderEvents(sim, EVENT_ROWS, width);
-        }catch(UnsupportedOperationException e){
-            return "(event log not ready: " + e.getMessage() + ")\n";
-        }
-    }
-
     //the COMMANDS box, same height as the KEY box so they sit nicely next to each other
     private String commandsText(int width){
         String[][] rows = {
             {"a", "add a task, like P1 to D2"},
-            {"i 2", "inspect robot R2"},
-            {"c", "service a stranded robot"},
+            {"n 5", "advance 5 ticks, just n is 1 tick"},
             {"r", "reset back to tick 0"},
             {"k", "colors on/off"},
             {"q", "quit"},
@@ -233,7 +209,7 @@ public class Menu{
         int gap = Math.max(1, width - 4 - title.length() - header.length());
         return TextUtil.rule('=', width) + "\n"
             + TextUtil.boxed(title + TextUtil.repeat(' ', gap) + header, width) + "\n"
-            + TextUtil.rule('=', width) + "\n\n";
+            + TextUtil.rule('=', width) + "\n";
     }
 
     //puts 2 spaces in front of every line (keeps the blank lines too)

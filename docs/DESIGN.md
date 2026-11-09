@@ -72,7 +72,7 @@ The same input always produces the same run, which makes testing and the demo pr
 | Constant | Value | Meaning |
 |---|---|---|
 | `MAX_BATTERY` | 100 | Full charge |
-| `MOVE_COST` | 5 | Battery used per cell moved |
+| `MOVE_COST` | 2.5 | Battery used per cell moved |
 | `WAIT_COST` | 0 | Waiting is free, so queues don't drain robots |
 | `CHARGE_RATE` | 15 | Gained per tick on a charger |
 | `RESERVE` | 6 | Safety margin kept on top of a trip's cost |
@@ -93,7 +93,7 @@ never blocks the charger, because a robot that needs it trades cells with the pa
 
 **Rule D, safe recovery when the battery runs out.** The robot enters `StrandedState` and stops. If
 it was carrying an item, its task is marked `FAILED`. Otherwise the task goes back to `PENDING`. The
-`c` menu command recharges a stranded robot by hand.
+robot stays stopped until the scenario is reset with `r`.
 
 ## 5. One tick, in order
 
@@ -108,9 +108,10 @@ it was carrying an item, its task is marked `FAILED`. Otherwise the task goes ba
    both pay for the move.
 5. **Charge:** each charger charges its occupant and admits the next robot in line when it is free.
 6. **Log:** events are written to `EventLog` as they happen during the steps above.
-7. **Render:** `Menu` redraws the map, status panel and log.
+7. **Render:** `Menu` redraws the map and status panel.
 
 The menu runs ticks automatically while robots have work, and waits for a command when they don't.
+The `n` command advances the simulation by hand, one tick or a chosen number at a time.
 
 ## 6. Errors and edge cases
 
@@ -121,9 +122,7 @@ The menu runs ticks automatically while robots have work, and waits for a comman
 | Pickup that isn't a P, or drop-off that isn't a D | Task rejected | `InvalidTaskException` |
 | Destination walled off | Task rejected when created | `UnreachableDestinationException` |
 | Task too long for a full battery | Task rejected (Rule A) | `InvalidTaskException` |
-| Robot ID that doesn't exist | Message | `RobotUnavailableException` |
-| Servicing a robot that isn't stranded | Message | `RobotUnavailableException` |
-| No idle robot can take a task | Task stays `PENDING` | None |
+| No idle robot can take a task | Task stays `PENDING` | `RobotUnavailableException`, caught by `Dispatcher` |
 | Charger busy | Robot waits in line (Rule C) | None |
 | Next cell occupied | Wait, then re-route (section 5, step 4) | None |
 | Battery reaches 0 | `STRANDED` and recovery (Rule D) | None |

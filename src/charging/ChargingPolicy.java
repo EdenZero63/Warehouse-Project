@@ -14,7 +14,7 @@ public class ChargingPolicy {
 
     //battery numbers
     public static final int MAX_BATTERY = 100;
-    public static final int MOVE_COST = 5; // 1 tile moved = 5% battery
+    public static final double MOVE_COST = 2.5; // 1 tile moved = 2.5% battery
     public static final int WAIT_COST = 0;
     public static final int CHARGE_RATE = 15;
     public static final int RESERVE = 6;
@@ -50,7 +50,7 @@ public class ChargingPolicy {
             return false;
         }
 
-        int totalCost = (toPickup + toDropOff + toCharger) * MOVE_COST;
+        double totalCost = (toPickup + toDropOff + toCharger) * MOVE_COST;
 
         return robot.getBattery().getLevel() >= totalCost + RESERVE;
     }
@@ -94,7 +94,7 @@ public class ChargingPolicy {
                     continue;
                 }
 
-                int totalCost = (toPickup + toDropOff + toEndCharger)
+                double totalCost = (toPickup + toDropOff + toEndCharger)
                         * MOVE_COST;
 
                 if (totalCost + RESERVE <= MAX_BATTERY) {
@@ -112,8 +112,8 @@ public class ChargingPolicy {
             return true;
         }
 
-        int currentBattery = robot.getBattery().getLevel();
-        int batteryAfterMove = currentBattery - MOVE_COST;
+        double currentBattery = robot.getBattery().getLevel();
+        double batteryAfterMove = currentBattery - MOVE_COST;
 
         if (batteryAfterMove < 0) {
             return true;
@@ -132,7 +132,7 @@ public class ChargingPolicy {
             return true;
         }
 
-        int requiredBattery = distance * MOVE_COST + RESERVE;
+        double requiredBattery = distance * MOVE_COST + RESERVE;
 
         return batteryAfterMove < requiredBattery;
     }

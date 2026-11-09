@@ -10,7 +10,7 @@ import task.Task;
 import warehouse.Position;
 
 
-//everything around the map: header, robots, tasks, chargers, recent events
+//everything around the map: header, robots, tasks, chargers
 public class StatusPanel{
     //how wide the panel next to the map is
     public static final int PANEL_WIDTH = 50;
@@ -43,10 +43,10 @@ public class StatusPanel{
         ArrayList<Robot> robots = sim.getRobots();
         for(int i = 0; i < robots.size(); i++){
             Robot r = robots.get(i);
-            int level = r.getBattery().getLevel();
+            int level = (int) r.getBattery().getLevel(); //rounds down, only for the bar and its color
             String top = TextUtil.pad(Colors.paint(GridRenderer.robotSymbol(r), Colors.robotColor(r)), 5)
                 + TextUtil.pad(r.getPosition().toString(), 8)
-                + Colors.paint(batteryBar(level) + " " + level + "%", Colors.batteryColor(level));
+                + Colors.paint(batteryBar(level) + " " + r.getBattery().getPercentText(), Colors.batteryColor(level));
             String bottom = "     " + TextUtil.pad(r.getState().getLabel(), 16) + destination(sim, r);
             sb.append(TextUtil.boxed(top, PANEL_WIDTH)).append("\n");
             sb.append(TextUtil.boxed(bottom, PANEL_WIDTH)).append("\n");
@@ -115,25 +115,6 @@ public class StatusPanel{
             }
         }
         return null;
-    }
-
-    //last `count` events in a box `width` wide, the newest one has >> in front
-    //always the same height so the screen doesn't jump around
-    public String renderEvents(Simulation sim, int count, int width){
-        StringBuilder sb = new StringBuilder();
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        sb.append(TextUtil.boxed("EVENT LOG", width)).append("\n");
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        ArrayList<String> recent = sim.getLog().getRecent(count);
-        for(int i = 0; i < count; i++){
-            String line = "";
-            if(i < recent.size()){
-                line = (i == recent.size() - 1 ? ">> " : "   ") + recent.get(i);
-            }
-            sb.append(TextUtil.boxed(line, width)).append("\n");
-        }
-        sb.append(TextUtil.rule('-', width)).append("\n");
-        return sb.toString();
     }
 
     //battery bar like "[#########-]", 10 blocks total
