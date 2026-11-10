@@ -132,3 +132,63 @@ The `n` command advances the simulation by hand, one tick or a chosen number at 
 
 The simulation is console-only with one predefined map. Traffic handling uses the simple rules in
 section 5 rather than coordinated multi-robot planning, which the project scope allows.
+
+## 8. Warehouse map
+
+The `warehouse` package is only the map and doesn't know anything about the robots, tasks, or batteries. It just knows what is supposed to be on each square.
+
+**The default layout** is built by `Scenario.createDefault()` from one text row per map row:
+
+```
+   0123456789
+0  ..........
+1  .##.##.##.
+2  C##P##.##C
+3  .P......D.
+4  ....##....
+5  ....##....
+6  .P......D.
+7  C##P##.##C
+8  .##.##.##.
+9  ..........
+```
+
+`.` is floor, `#` is a rack, `P` is a pickup point, `D` is a drop-off point and `C` is a charger.
+A position is written `(row, col)`, and `(0,0)` is the top-left corner.
+
+| Label | Position | Label | Position |
+|---|---|---|---|
+| P1 | (3,1) | D1 | (3,8) |
+| P2 | (6,1) | D2 | (6,8) |
+| P3 | (2,3) | C1 | (2,0) |
+| P4 | (7,3) | C2 | (2,9) |
+| | | C3 | (7,0) |
+| | | C4 | (7,9) |
+
+P and D are numbered column by column, left to right and top to bottom inside a column. Chargers are
+numbered in reading order. The 2x2 racks leave aisles between them, so most trips have to go around
+at least one rack. Chargers are on the left and right edges, and BFS never routes through one unless
+it is the destination.
+
+**Classes**
+
+| Class | Job |
+|---|---|
+| `Position` | One `(row, col)` spot. It can't be changed once made, and `move(dRow, dCol)` returns a new neighbouring one |
+| `Cell` | What is on one square: its type (`FLOOR`, `OBSTACLE`, `PICKUP`, `DROPOFF`, `CHARGER`) and a label such as `"P1"` |
+| `Warehouse` | The grid, a private `Cell[][]`, with bounds checks, walkability checks and label lookup |
+
+**Design decisions**
+
+- **The grid is private.** Other classes go through `isInBounds`, `isWalkable`, `getCell`, `setCell`
+  and `findLabel`, so every read and write goes through a bounds check first.
+- **`isWalkable` and `isInBounds` are overloaded.** Each takes either a `Position` or a `row, col`
+  pair, whichever the caller already has.
+- **`Position` overrides `equals` and `hashCode`.** BFS keeps a `HashMap<Position, Position>` of
+  visited cells, and robots compare positions to see if a cell is taken. Without the overrides, two
+  `Position` objects with the same row and column would count as different.
+- **`isWalkable` returns `false` off the grid, but `getCell` throws.** BFS looks past the edge all
+  the time, so "not walkable" is a normal answer there. Asking `getCell` or `setCell` for a square
+  that doesn't exist is a real mistake, so it throws `InvalidPositionException`.
+- **The layout is plain text in `Scenario`.** A new map is just new strings, and
+  `buildWarehouse()` checks that every row has the same length.
